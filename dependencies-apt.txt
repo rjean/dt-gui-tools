@@ -1,2 +1,5 @@
 # LIST YOUR APT PACKAGES HERE
 ros-kinetic-rviz
+ros-kinetic-rqt
+ros-kinetic-rqt-common-plugins
+ros-kinetic-image-transport-plugins
