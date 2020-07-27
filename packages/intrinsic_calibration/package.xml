@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>camera_calibration</name>
+  <name>intrinsic_calibration</name>
   <version>1.0.0</version>
   <description>
     A package for intrinsic camera calibration
