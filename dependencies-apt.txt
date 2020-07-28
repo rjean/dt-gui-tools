@@ -3,5 +3,6 @@ ros-kinetic-rviz
 ros-kinetic-rqt
 ros-kinetic-rqt-common-plugins
 ros-kinetic-image-transport-plugins
+ros-kinetic-image-geometry
 ros-kinetic-camera-calibration
 python-pygame
