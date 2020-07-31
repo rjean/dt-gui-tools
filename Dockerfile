@@ -90,3 +90,53 @@ LABEL org.duckietown.label.module.type="${REPO_NAME}" \
 # nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+# configure HOME environment (do not change)
+ENV USER=duckie
+ENV PASSWD=quackquack
+ENV UID=1000
+ENV GID=1000
+ENV HOME=/home/$USER
+RUN mkdir -p ${HOME}
+
+# configure NOVNC (do not change)
+ENV NO_VNC_HOME=$HOME/noVNC
+ENV NO_VNC_PORT=6901
+RUN mkdir -p ${NO_VNC_HOME}
+
+# configure VNC (do not change)
+ENV DISPLAY=:1
+ENV VNC_PORT=5901
+ENV VNC_VIEW_ONLY=false
+ENV VNC_PW=$PASSWD
+
+# generate locale
+ENV LANG='en_US.UTF-8'
+ENV LANGUAGE='en_US:en'
+ENV LC_ALL='en_US.UTF-8'
+RUN locale-gen en_US.UTF-8
+
+# install XFCE4
+RUN apt-get update \
+    && apt-get install -y \
+        supervisor \
+        xfce4 \
+        xfce4-terminal \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get purge -y \
+        pm-utils \
+        xscreensaver*
+
+# create a HOME for novnc
+ADD ./assets/home/. $HOME/
+
+# install xvnc-server and noVNC (HTML5-based VNC viewer)
+RUN ${REPO_PATH}/assets/install/tigervnc.sh
+RUN ${REPO_PATH}/assets/install/no_vnc.sh
+
+# configure VNC (customizable section)
+ENV VNC_COL_DEPTH=24
+ENV VNC_RESOLUTION=1920x1080
+
+# expose ports
+EXPOSE $VNC_PORT $NO_VNC_PORT

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=RViz
+Comment=Robot Visualization tool
+Exec=rviz
+Icon=/home/duckie/.icons/rviz.png
+Path=/home/duckie
+Terminal=false
+StartupNotify=true

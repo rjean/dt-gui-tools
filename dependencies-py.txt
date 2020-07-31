@@ -1,1 +1,4 @@
 # LIST YOUR PYTHON PACKAGES HERE
+
+# this is for websockify/novnc
+numpy

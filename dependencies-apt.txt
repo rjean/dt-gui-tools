@@ -6,3 +6,10 @@ ros-kinetic-image-transport-plugins
 ros-kinetic-image-geometry
 ros-kinetic-camera-calibration
 python-pygame
+
+# these are for novnc
+vim
+wget
+net-tools
+locales
+bzip2
