@@ -135,7 +135,7 @@ RUN ${REPO_PATH}/assets/install/tigervnc.sh
 RUN ${REPO_PATH}/assets/install/no_vnc.sh
 
 # configure VNC (customizable section)
-ENV VNC_COL_DEPTH=24
+ENV VNC_COL_DEPTH=16
 ENV VNC_RESOLUTION=1920x1080
 
 # expose ports
