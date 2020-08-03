@@ -5,16 +5,20 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 # pick an icon from: https://fontawesome.com/v4.7.0/icons/
 ARG ICON="desktop"
 
+# novnc and websockify versions to use
+ARG NOVNC_VERSION="35dd3c2"
+ARG WEBSOCKIFY_VERSION="3646575"
+
 # ==================================================>
 # ==> Do not change the code below this line
 ARG ARCH=arm32v7
 ARG DISTRO=daffy
 ARG BASE_TAG=${DISTRO}-${ARCH}
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=dt-core
 ARG LAUNCHER=default
 
 # define base image
-FROM duckietown/${BASE_IMAGE}:${BASE_TAG}
+FROM duckietown/${BASE_IMAGE}:${BASE_TAG} as base
 
 # recall all arguments
 ARG ARCH
@@ -87,56 +91,67 @@ LABEL org.duckietown.label.module.type="${REPO_NAME}" \
 # <== Do not change the code above this line
 # <==================================================
 
-# nvidia-container-runtime
+## nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
-# configure HOME environment (do not change)
-ENV USER=duckie
-ENV PASSWD=quackquack
-ENV UID=1000
-ENV GID=1000
-ENV HOME=/home/$USER
-RUN mkdir -p ${HOME}
+# install ffmpeg
+COPY assets/vnc/install-ffmpeg /tmp/
+RUN /tmp/install-ffmpeg ${ARCH}
 
-# configure NOVNC (do not change)
-ENV NO_VNC_HOME=$HOME/noVNC
-ENV NO_VNC_PORT=6901
-RUN mkdir -p ${NO_VNC_HOME}
+# install backend dependencies
+COPY assets/vnc/install-backend-deps /tmp/
+COPY assets/vnc/image/usr/local/lib/web/backend/requirements.txt /tmp/
+RUN /tmp/install-backend-deps
 
-# configure VNC (do not change)
-ENV DISPLAY=:1
-ENV VNC_PORT=5901
-ENV VNC_VIEW_ONLY=false
-ENV VNC_PW=$PASSWD
+# copy novnc stuff to the root of the container
+COPY assets/vnc/image /
 
-# generate locale
-ENV LANG='en_US.UTF-8'
-ENV LANGUAGE='en_US:en'
-ENV LC_ALL='en_US.UTF-8'
-RUN locale-gen en_US.UTF-8
 
-# install XFCE4
+#### => Substep: Frontend builder
+##
+##
+FROM ${ARCH}/ubuntu:xenial as builder
+
 RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates \
+        git
+
+# nodejs
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \
     && apt-get install -y \
-        supervisor \
-        xfce4 \
-        xfce4-terminal \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get purge -y \
-        pm-utils \
-        xscreensaver*
+        nodejs
 
-# create a HOME for novnc
-ADD ./assets/home/. $HOME/
+# yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
+    && apt-get install -y yarn
 
-# install xvnc-server and noVNC (HTML5-based VNC viewer)
-RUN ${REPO_PATH}/assets/install/tigervnc.sh
-RUN ${REPO_PATH}/assets/install/no_vnc.sh
+# fetch noVNC
+ARG NOVNC_VERSION
+RUN git clone https://github.com/novnc/noVNC /src/web/static/novnc \
+    && git -C /src/web/static/novnc checkout ${NOVNC_VERSION}
 
-# configure VNC (customizable section)
-ENV VNC_COL_DEPTH=16
-ENV VNC_RESOLUTION=1920x1080
+# fetch websockify
+ARG WEBSOCKIFY_VERSION
+RUN git clone https://github.com/novnc/websockify /src/web/static/websockify \
+    && git -C /src/web/static/websockify checkout ${WEBSOCKIFY_VERSION}
 
-# expose ports
-EXPOSE $VNC_PORT $NO_VNC_PORT
+# build frontend
+COPY assets/vnc/web /src/web
+RUN cd /src/web \
+    && yarn \
+    && npm run build
+##
+##
+#### <= Substep: Frontend builder
+
+# jump back to the base image and copy frontend from builder stage
+FROM base
+COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
+
+# configure novnc
+ENV HTTP_PORT 8087

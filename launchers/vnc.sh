@@ -13,7 +13,8 @@ dt-launchfile-init
 # NOTE: Use `dt-exec COMMAND` to run the main process (blocking process)
 
 # launching app
-dt-exec /home/duckie/vnc_startup.sh --wait
+source /setup-vnc.sh
+/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 
 
 # ----------------------------------------------------------------------------

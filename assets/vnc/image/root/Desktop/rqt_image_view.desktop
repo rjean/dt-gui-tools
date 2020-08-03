@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=RQT Image View
+Comment=Camera Visualization tool
+Exec=rqt_image_view
+Icon=applets-screenshooter
+Terminal=false
+StartupNotify=true

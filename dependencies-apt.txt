@@ -7,9 +7,25 @@ ros-kinetic-image-geometry
 ros-kinetic-camera-calibration
 python-pygame
 
-# these are for novnc
-vim
-wget
+# these are for VNC
+supervisor
+nginx
+sudo
+vim-tiny
 net-tools
-locales
-bzip2
+zenity
+xz-utils
+dbus-x11
+x11-utils
+alsa-utils
+mesa-utils
+libgl1-mesa-dri
+lxde
+x11vnc
+xvfb
+gtk2-engines-murrine
+gnome-themes-standard
+gtk2-engines-pixbuf
+gtk2-engines-murrine
+ttf-ubuntu-font-family
+ttf-wqy-zenhei

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=RViz
+GenericName=RViz
+Comment=Robot 3D visualization tool
+TryExec=rviz
+Exec=rviz
+Icon=/root/.icons/rviz.png
+Type=Application
+Categories=robot;robotics;visualization;rviz;
+Keywords=robot;robotics;visualization;rviz;

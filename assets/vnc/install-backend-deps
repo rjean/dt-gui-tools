@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# if anything happens, get out
+set -e
+
+# do stuff
+apt-get update
+dpkg-query -W -f='${Package}\n' > /tmp/a.txt
+apt-get install -y python-pip python-dev build-essential
+pip install setuptools wheel
+pip install -r /tmp/requirements.txt
+dpkg-query -W -f='${Package}\n' > /tmp/b.txt
+apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs`
+apt-get autoclean -y
+apt-get autoremove -y
+rm -rf /var/lib/apt/lists/*
+rm -rf /var/cache/apt/* /tmp/a.txt /tmp/b.txt
