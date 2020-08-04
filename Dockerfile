@@ -63,7 +63,7 @@ COPY ./dependencies-py3.txt "${REPO_PATH}/"
 RUN pip3 install -r ${REPO_PATH}/dependencies-py3.txt
 
 # copy the source code
-COPY . "${REPO_PATH}/"
+COPY ./packages "${REPO_PATH}/packages"
 
 # build packages
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
@@ -110,8 +110,12 @@ COPY assets/vnc/image /
 
 #### => Substep: Frontend builder
 ##
+##  NOTE:   This substep always runs in an amd64 image regardless of the architecture of
+##          final image. As a result, this Dockerfile can be run only on amd64 machines
+##          with QEMU enabled.
 ##
-FROM ${ARCH}/ubuntu:xenial as builder
+##
+FROM ubuntu:xenial as builder
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -148,6 +152,7 @@ RUN cd /src/web \
 ##
 ##
 #### <= Substep: Frontend builder
+
 
 # jump back to the base image and copy frontend from builder stage
 FROM base
