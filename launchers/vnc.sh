@@ -12,9 +12,21 @@ dt-launchfile-init
 # NOTE: Use the variable REPO_PATH to know the absolute path to your code
 # NOTE: Use `dt-exec COMMAND` to run the main process (blocking process)
 
+HOSTNAME=$(hostname)
+
+SOUT=">/dev/null"
+if [ "${DEBUG}" = "1" ] || [ "${DEBUG}" = "yes" ] || [ "${DEBUG}" = "true" ]; then
+    SOUT=""
+fi
+
 # launching app
 source /setup-vnc.sh
-/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+dt-exec supervisord -n --configuration=/etc/supervisor/supervisord.conf ${SOUT}
+
+sleep 2
+echo -e "\n
+NoVNC is running.\n
+\tOpen the URL http://${HOSTNAME}.local:${HTTP_PORT} in your browser.\n"
 
 
 # ----------------------------------------------------------------------------
