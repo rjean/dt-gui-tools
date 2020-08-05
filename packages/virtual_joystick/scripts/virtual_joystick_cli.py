@@ -27,7 +27,7 @@ def keyCatcher():
     while not rospy.is_shutdown():
         axes = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        direction = raw_input(
+        direction = input(
             'Enter direction [a,w,s,d] to move; '
             '[l] to start lane following; '
             '[q] to stop lane following; '
