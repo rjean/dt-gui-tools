@@ -1,1 +1,5 @@
 # LIST YOUR PYTHON3 PACKAGES HERE
+
+# Map editor
+numpy==1.18.5
+PyQt5==5.14.0
