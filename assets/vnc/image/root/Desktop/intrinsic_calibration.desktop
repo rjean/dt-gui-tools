@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=dt-launcher-intrinsic-calibration
+Icon=gnome-network-properties
+Terminal=false
+StartupNotify=true
+Name=Calibration - Intrinsic
+Comment=Calibration for Intrinsic Camera parameters
+GenericName=Calibration for Intrinsic Camera parameters
