@@ -2,7 +2,6 @@
 ros-noetic-rviz
 ros-noetic-rqt
 ros-noetic-rqt-common-plugins
-ros-noetic-image-transport-plugins
 ros-noetic-image-geometry
 ros-noetic-camera-calibration
 python-pygame
