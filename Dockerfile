@@ -18,7 +18,7 @@ ARG BASE_IMAGE=dt-core
 ARG LAUNCHER=default
 
 # define base image
-FROM duckietown/${BASE_IMAGE}:${BASE_TAG} as base
+FROM duckietown/${BASE_IMAGE}:${BASE_TAG} as BASE
 
 # recall all arguments
 ARG ARCH
@@ -151,7 +151,7 @@ RUN cd /src/web \
 
 
 # jump back to the base image and copy frontend from builder stage
-FROM base
+FROM BASE
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 
 # configure novnc
