@@ -18,7 +18,7 @@ locale=${1:-'en'}
 
 # launching app
 cd $DT_REPO_PATH/packages/map_editor/
-dt-exec python3 main.py $locale
+dt-exec python3 main.py --locale $locale
 
 
 # ----------------------------------------------------------------------------
