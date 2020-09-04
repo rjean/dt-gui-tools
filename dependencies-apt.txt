@@ -1,10 +1,9 @@
 # LIST YOUR APT PACKAGES HERE
-ros-kinetic-rviz
-ros-kinetic-rqt
-ros-kinetic-rqt-common-plugins
-ros-kinetic-image-transport-plugins
-ros-kinetic-image-geometry
-ros-kinetic-camera-calibration
+ros-noetic-rviz
+ros-noetic-rqt
+ros-noetic-rqt-common-plugins
+ros-noetic-image-geometry
+ros-noetic-camera-calibration
 python-pygame
 
 # these are for VNC
