@@ -18,7 +18,7 @@ ARG BASE_IMAGE=dt-core
 ARG LAUNCHER=default
 
 # define base image
-FROM duckietown/${BASE_IMAGE}:${BASE_TAG} as base
+FROM duckietown/${BASE_IMAGE}:${BASE_TAG} as BASE
 
 # recall all arguments
 ARG ARCH
@@ -53,10 +53,6 @@ ENV DT_LAUNCHER "${LAUNCHER}"
 # install apt dependencies
 COPY ./dependencies-apt.txt "${REPO_PATH}/"
 RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
-
-# install python dependencies
-COPY ./dependencies-py.txt "${REPO_PATH}/"
-RUN pip install -r ${REPO_PATH}/dependencies-py.txt
 
 # install python3 dependencies
 COPY ./dependencies-py3.txt "${REPO_PATH}/"
@@ -155,7 +151,7 @@ RUN cd /src/web \
 
 
 # jump back to the base image and copy frontend from builder stage
-FROM base
+FROM BASE
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 
 # configure novnc
