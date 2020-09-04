@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-import codecs
-import json
-import re
-
 import numpy as np
 
-from maptile import MapTile
-from mapobject import MapObject
+from classes.mapTile import MapTile
 from PyQt5 import QtGui, QtCore
 from mapviewer import MapViewer
 import logging
+import yaml
 
 logger = logging.getLogger('root')
 
@@ -32,7 +28,7 @@ def get_map_objects(map):
     tree = 0
     trafficlight = 0
     truck = 0
-    item_layer = map.get_item_layer()
+    item_layer = map.get_item_layer().data
     if item_layer:
         for object in item_layer:
             if object.kind == 'barrier':
@@ -98,7 +94,7 @@ def get_map_elements(map):
     count_of_3way = count_of_4way = 0
     count_of_floor = count_of_grass = count_of_asphalt = 0
 
-    for tile in np.array(map.get_tile_layer()).flat:
+    for tile in np.array(map.get_tile_layer().data).flat:
         if '4way' in tile.kind:
             count_of_4way += 1
         elif '3way' in tile.kind:
@@ -114,7 +110,7 @@ def get_map_elements(map):
         elif 'asphalt' in tile.kind:
             count_of_asphalt +=1
 
-    item_layer = map.get_item_layer()
+    item_layer = map.get_item_layer().data
     if item_layer:
         for object in item_layer:
             if object.kind == 'sign_4_way_intersect':
@@ -154,7 +150,7 @@ def get_map_elements(map):
     result += '{}{}: {} {}\n'.format(padding, _translate("MainWindow", "Number of grass"), count_of_grass, _translate("MainWindow", "pcs"))
     result += '{}{}: {} {}\n'.format(padding, _translate("MainWindow", "Number of asphalt"), count_of_asphalt, _translate("MainWindow", "pcs"))
     result += '{}{}: {} {}\n'.format(padding, _translate("MainWindow", "Number of floor"), count_of_floor, _translate("MainWindow", "pcs"))
-    
+
     result +='{}\n'.format(_translate("MainWindow", "Signs"))
     if sign_4_way:
         result += '{}{}: {} {}\n'.format(padding, _translate("MainWindow", "Crossroad"), sign_4_way, _translate("MainWindow", "pcs"))
@@ -198,7 +194,7 @@ def materials_of_map(map, specifications):
     yellow = 0
     red = 0
 
-    for tile in np.array(map.get_tile_layer()).flat:
+    for tile in np.array(map.get_tile_layer().data).flat:
         white += specifications[tile.kind]['white']
         yellow += specifications[tile.kind]['yellow']
         red += specifications[tile.kind]['red']
@@ -219,7 +215,7 @@ def materials_of_map(map, specifications):
 def specifications_of_map(map, specifications):
     road_length = 0
     result = "{}\n{}\n".format(_translate("MainWindow", "Map characteristics"), _translate("MainWindow", "Roads"))
-    for tile in np.array(map.get_tile_layer()).flat:
+    for tile in np.array(map.get_tile_layer().data).flat:
         road_length += specifications[tile.kind]['length']
 
     result += '      {}: {} {}\n'.format(_translate("MainWindow", "Road len"), road_length, _translate("MainWindow", "sm"))
@@ -228,56 +224,35 @@ def specifications_of_map(map, specifications):
     return result
 
 
-def map_to_png(map, map_name):
+def map_to_png(map_viewer: MapViewer, map_name):
     if '.png' not in map_name:
         map_name = map_name + '.png'
-    tile_layer = map.get_tile_layer()
-    item_layer = map.get_item_layer()
-
-    height = len(tile_layer)
-    width = len(tile_layer[0])
-    mergedImage = QtGui.QImage(width * map.gridSize, height * map.gridSize, QtGui.QImage.Format_RGB32)
-    pt = QtGui.QPainter(mergedImage)
+    tile_layer_data = map_viewer.map.get_tile_layer().data
+    height = len(tile_layer_data)
+    width = len(tile_layer_data[0])
+    mergedImage = QtGui.QImage(width * map_viewer.map.gridSize, height * map_viewer.map.gridSize, QtGui.QImage.Format_RGB32)
+    painter = QtGui.QPainter(mergedImage)
     transform = QtGui.QTransform()
     transform.translate(0, 0)
-    pt.setTransform(transform, False)
-    for y in range(len(tile_layer)):
-        for x in range(len(tile_layer[y])):
-            angle = tile_layer[y][x].rotation
-            pt.translate(x * map.gridSize, y * map.gridSize)
-            pt.drawRect(QtCore.QRectF(0, 0, map.gridSize, map.gridSize))
-            pt.rotate(angle)
-            if angle == 90:
-                pt.translate(0, -map.gridSize)
-            elif angle == 180:
-                pt.translate(-map.gridSize, -map.gridSize)
-            elif angle == 270:
-                pt.translate(-map.gridSize, 0)
-            pt.drawImage(QtCore.QRectF(0, 0, map.gridSize, map.gridSize),
-                              MapViewer.tileSprites[tile_layer[y][x].kind])
-            pt.setTransform(transform, False)
-
-    item_layer = map.get_item_layer()
-    if item_layer:
-        for s in item_layer:
-            if MapViewer.objects.__contains__(s.kind):
-                pt.drawImage(
-                    QtCore.QRectF(map.gridSize * MapViewer.sc * s.position['x'],
-                                  map.gridSize * MapViewer.sc * s.position['y'],
-                                  map.gridSize * MapViewer.sc / 2, map.gridSize * MapViewer.sc / 2),
-                    MapViewer.objects[s.kind])
-    pt.resetTransform()
+    painter.setTransform(transform, False)
+    # Draw tile layer
+    map_viewer.draw_tiles(tile_layer_data, painter, transform)
+    # Draw objects
+    for layer in map_viewer.map.get_object_layers(only_visible=True):
+        map_viewer.draw_objects(layer.get_objects(), painter)
+    painter.resetTransform()
 
     mergedImage.save(map_name, "png")
-    pt.end()
+    painter.end()
 
 
 def map_to_yaml(map, map_name):
+    # TODO: layers
     if '.yaml' not in map_name:
         map_name = map_name + '.yaml'
     f = open(map_name, 'w')
     f.write('tiles:\n')
-    for tile_string in map.get_tile_layer():
+    for tile_string in map.get_tile_layer().data:
         f.write('- [')
         for tile in tile_string:
             f.write(tile.kind)
@@ -289,7 +264,7 @@ def map_to_yaml(map, map_name):
             if tile_string.index(tile) != len(tile_string) - 1:
                 f.write(' , ')
         f.write(']\n')
-    item_layer = map.get_item_layer()
+    item_layer = map.get_item_layer().data
     if item_layer:
         f.write('\nobjects:')
         for map_object in item_layer:
@@ -312,6 +287,13 @@ def tiles_to_objects(tiles):
     for tile_string in tiles:
         tiles_object_string = []
         for tile in tile_string:
+            if '/' in tile != -1:
+                kind, rotate = tile.split('/')
+                for angle, word in rotation_val.items():
+                    if word == rotate:
+                        tile = {'kind': kind, 'rotate': angle}
+            else:
+                tile = {'kind': tile, 'rotate': 0}
             tiles_object_string.append(MapTile(tile['kind'], tile['rotate']))
         tiles_objects_array.append(tiles_object_string)
     return tiles_objects_array
@@ -321,109 +303,28 @@ def map_objects_to_objects(map_objects):
     map_objects_array = []
     if not map_objects:
         return map_objects_array
-    for object in map_objects:
-        x, y = re.sub(r"[\[\]]", "", object['pos']).split(',')
-        position = [float(x), float(y)]
-        rotation = float(object['rotate'])
-        height = float(object['height'])
-        optional = True if object['optional'] == 'true' else False
-        static = True if object['static'] == 'True' else False
-        map_objects_array.append(MapObject(object['kind'], position, rotation, height, optional, static))
+    for map_object in map_objects:
+        if 'optional' not in map_object:
+            map_object['optional'] = False
+        if 'static' not in map_object:
+            map_object['static'] = True
+        map_objects_array.append(map_object)
     return map_objects_array
 
 
-def get_tiles(name):
-    tiles_array = []
+last_data = None
+last_map = None
+
+
+def data_from_file(map_yaml):
+    global last_data, last_map
+    if last_map == map_yaml:
+        return last_data
     try:
-        f = open(name, 'r')
+        with open(map_yaml, 'r') as file:
+            last_data = yaml.safe_load(file)
+        last_map = map_yaml
+        return last_data
     except IOError:
         logger.debug("{}".format(_translate("MainWindow", "Could not open file!")))
         return None
-
-    while True:
-        map_line = f.readline()
-        if 'tiles:' in map_line != -1:
-            break
-
-    map_line = f.readline()
-    while map_line[0] == '-':
-        map_line = re.sub(r"[ \t\[\]\-\n]", "", map_line)
-        tiles = map_line.split(',')
-
-        tile_string = []
-        for tile in tiles:
-            if tile == "":
-                continue
-            tile_object = {}
-            if '/' in tile != -1:
-                kind, rotate = tile.split('/')
-                tile_object['kind'] = kind
-                for angle, word in rotation_val.items():
-                    if word == rotate:
-                        tile_object['rotate'] = angle
-            else:
-                tile_object['kind'] = tile
-                tile_object['rotate'] = 0
-            tile_string.append(tile_object)
-        tiles_array.append(tile_string)
-        map_line = f.readline()
-
-    f.close()
-    return tiles_array
-
-
-def get_objects(name):
-    objects_array = []
-    try:
-        f = open(name, 'r')
-    except IOError:
-        logger.debug("{}".format(_translate("MainWindow", "Could not open file!")))
-        return None
-
-    map_line = f.readline()
-    while map_line:
-        if 'objects:' in map_line != -1:
-            break
-        map_line = f.readline()
-
-    if not map_line:
-        f.close()
-        return None
-
-    while map_line[0] != 't':
-        if map_line[0] == '-':
-            map_object = {}
-            while True:
-                map_line = re.sub(r"[ \t\n-]", "", map_line)
-                splits_line = map_line.split(':')
-                map_object[splits_line[0]] = splits_line[1]
-                map_line = f.readline()
-
-                if map_line[0] == '-' or map_line[0] == 't' or map_line[0] == "\n":
-                    if 'optional' not in map_object:
-                        map_object['optional'] = 'false'
-                    if 'static' not in map_object:
-                        map_object['static'] = 'True'
-                    objects_array.append(map_object)
-                    break
-        else:
-            map_line = f.readline()
-    f.close()
-    return objects_array
-
-
-def get_tile_size(name):
-    try:
-        f = open(name, 'r')
-    except IOError:
-        logger.debug("{}".format(_translate("MainWindow", "Could not open file!")))
-        return None
-
-    while True:
-        map_line = f.readline()
-        if 'tile_size:' in map_line != -1:
-            break
-    map_line = map_line.split(':')
-
-    f.close()
-    return float(map_line[1])

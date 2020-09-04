@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
+from layers.map_layer import MapLayer
+from layers.layer_type import LayerType
+import layers.relations as layer_relations
 import logging
 
 logger = logging.getLogger('root')
-
-TILE_LAYER_NAME = "tiles"
-ITEM_LAYER_NAME = "items"
 
 
 class DuckietownMap:
     name = None
     gridSize = 58.5
 
-    def __init__(self):
-        self.layer_list = [TILE_LAYER_NAME, ITEM_LAYER_NAME]
-        self.layer_info = {
-            TILE_LAYER_NAME: [[]],
-            ITEM_LAYER_NAME: []
-        }
+    def __init__(self, empty=False):
+        self.layers = [MapLayer(LayerType.TILES, [[]]), MapLayer(LayerType.ITEMS, [])] if not empty else []
 
     # Getters
 
@@ -25,7 +21,7 @@ class DuckietownMap:
         Get tile layer's data (default name define by TILE_LAYER_NAME)
         :return: list(list)
         """
-        return self.get_layer(TILE_LAYER_NAME)
+        return self.get_layer_by_type(LayerType.TILES)
 
     def get_item_layer(self):
         """
@@ -33,48 +29,141 @@ class DuckietownMap:
         If item layer doesn't exist, function create it
         :return: list
         """
-        layer = self.get_layer(ITEM_LAYER_NAME)
-        if layer is None:   # if layer doesn't exist, layer = None
-            self.set_item_layer([])
+        layer = self.get_layer_by_type(LayerType.ITEMS)
+        if layer is None:  # if layer doesn't exist, layer = None
             layer = []
+            self.add_layer_from_data(LayerType.ITEMS, layer)
         return layer
 
-    def get_layer(self, name):
+    def get_layer_by_name(self, name):
         """
-        Get layer's data by name
+        Get layer by name
         :param name: name of layer
         :return: list, if name doesn't exist, return None
         """
-        return self.layer_info.get(name, None)
+        for layer in self.layers:
+            if layer.name == name:
+                return layer
+        return None
+
+    def get_layer_by_type(self, layer_type: LayerType):
+        """
+        Get layer by type
+        :param layer_type: type of layer
+        :return: list, if layer w/ type doesn't exist, return None
+        """
+        for layer in self.layers:
+            if layer.type == layer_type:
+                return layer
+        return None
+
+    def get_object_layers(self, only_visible=False):
+        """
+        Get layers with layer_type, that supports object placement.
+        Layer types define by LAYER_TYPE_WITH_OBJECTS.
+        If only_visible is True, return only visible layers
+        :return: generator w/ layers
+        """
+        for layer in self.layers:
+            if layer.type in layer_relations.LAYER_TYPE_WITH_OBJECTS and layer.visible:
+                yield layer
+
+    def get_objects_from_layers(self, only_visible=False):
+        """
+        Get all objects from layers in map
+        If only_visible is True, return only objects from visible layers
+        :return: generator w/ objects
+        """
+        for layer in self.get_object_layers(only_visible):
+            for layer_object in layer.get_objects():
+                yield layer_object
 
     # Setters
 
-    def set_tile_layer(self, layer):
+    def set_tile_layer(self, layer: list):
         """
         Set tile layer's data
         :param layer: list(list)
-        :return: -
+        :return: bool, return False if layer doesn't exist, else True
         """
-        self.set_layer(TILE_LAYER_NAME, layer)
+        self.set_layer_data_by_type(LayerType.TILES, layer)
 
-    def set_item_layer(self, layer):
+    def set_item_layer(self, layer: list):
         """
         Set item layer's data
         :param layer: list
-        :return: -
+        :return: bool, return False if layer doesn't exist, else True
         """
-        self.set_layer(ITEM_LAYER_NAME, layer)
+        self.set_layer_data_by_type(LayerType.ITEMS, layer)
 
-    def set_layer(self, name, layer):
+    def set_layer_data_by_name(self, layer_name: str, layer_data: list):
         """
         Set layer's data by name
-        :param name: layer's name
-        :param layer: list
-        :return: -
+        :param layer_name: name of layer
+        :param layer_data: list
+        :return: bool, return False if layer doesn't exist, else True
         """
-        self.layer_info[name] = layer
-        if name not in self.layer_list:  # for adding new layers in future
-            self.layer_list.append(name)
+        layer = self.get_layer_by_name(layer_name)
+        if layer:
+            return self.set_layer_data_by_type(layer.type, layer_data)
+        else:
+            logger.info("Layer with name '{}' doesn't exist".format(layer_name))
+            return False
+
+    def set_layer_data_by_type(self, layer_type: LayerType, layer_data: list):
+        """
+        Set layer's data by name
+        :param layer_type: type of layer
+        :param layer_data: list
+        :return: bool, return False if layer doesn't exist, else True
+        """
+        layer = self.get_layer_by_type(layer_type)
+        if layer:
+            layer.data = layer_data
+            return True
+        else:
+            logger.info("Layer with type '{}' doesn't exist".format(layer_type))
+            return False
+
+    def set_layer(self, new_layer: MapLayer):
+        for i, layer in enumerate(self.layers):
+            if layer.type == new_layer.type:
+                self.layers[i] = new_layer
+                return True
+        logger.info("Layer with type '{}' doesn't exists. Can't set new layer".format(new_layer.type))
+
+    # Creating layer
+
+    def add_layer_from_data(self, layer_type: LayerType, layer_data=None, layer_name=''):
+        """
+        Add layer to map from layer_type and layer_data
+        :param layer_type: LayerType
+        :param layer_data: list
+        :param layer_name: str
+        :return: bool, return False, if layer with such LayerType already exists, else True
+        """
+        if self.get_layer_by_type(layer_type):
+            logger.info("Layer with type '{}' already exists.\nTo set new layer data use "
+                        "set_layer_data/set_layer_data_by_type.\nTo set new layer name use "
+                        "set_layer_name/set_layer_name_by_type".format(layer_type))
+            return False
+        else:
+            return self.add_layer(MapLayer(layer_type, layer_data if layer_data else [], layer_name))
+
+    def add_layer(self, layer: MapLayer):
+        """
+        Add layer to map
+        :param layer: MapLayer
+        :return: bool, return False, if layer with such LayerType already exists, else True
+        """
+        if self.get_layer_by_type(layer.type):
+            logger.info("Layer with type '{}' already exists.\nTo set new layer data use "
+                        "set_layer_data/set_layer_data_by_type.\nTo set new layer name use "
+                        "set_layer_name/set_layer_name_by_type".format(layer.type))
+            return False
+        else:
+            self.layers.append(layer)
+            return True
 
     # Adding elem to layers
 
@@ -84,24 +173,52 @@ class DuckietownMap:
         :param item: MapObject. Note: after adding specific layers, it can change
         :return: bool (looks like it always True)
         """
-        return self.add_elem_to_layer(ITEM_LAYER_NAME, item)
+        return self.add_elem_to_layer_by_type(LayerType.ITEMS, item)
 
-    def add_elem_to_layer(self, name, elem):
+    def add_elem_to_layer(self, layer_name: str, elem):
         """
         Add elem to layer by name
         (Doesn't add elements to tile_layer due to different structure)
-        :param name: layer's name
+        :param layer_name: name of layer
         :param elem: MapObject. Note: after adding specific layers, it can change
-        :return: bool. If layer doesn't exist - False,
+        :return: bool, return False if layer doesn't exist, else True
         """
-        if name == TILE_LAYER_NAME:
+        layer = self.get_layer_by_name(layer_name).type
+        if layer is not None:
+            return self.add_elem_to_layer_by_type(layer.type, elem)
+        else:
+            logger.info("Layer with name '{}' doesn't exist".format(layer_name))
+            return False
+
+    def add_elem_to_layer_by_type(self, layer_type: LayerType, elem):
+        """
+        Add elem to layer by type
+        (Doesn't add elements to tile_layer due to different structure)
+        :param layer_type: type of layer
+        :param elem: MapObject. Note: after adding specific layers, it can change
+        :return: bool, return False if layer doesn't exist, else True
+        """
+        if layer_type == LayerType.TILES:
             logger.warning("Don't use this method for tile layer.")
             return False
-        layer = self.get_layer(name)
-
-        if layer is not None:   # layer can exist, but be empty. get_layer return None, if layer doesn't exist
-            layer.append(elem)
+        layer = self.get_layer_by_type(layer_type)
+        if layer is not None:  # layer can exist, but be empty. get_layer_by_name/get_layer_by_type return None, if layer doesn't exist
+            layer.add_elem(elem)
             return True
         else:
-            logger.debug('No such layer name: {}'.format(name))
+            logger.info("Layer with type '{}' doesn't exist".format(layer_type))
             return False
+
+    def add_objects_to_map(self, objects, info_about_objects):
+        for map_object in objects:
+            object_type = info_about_objects[map_object['kind']]['type']
+            layer_type = layer_relations.get_layer_type_by_object_type(object_type)
+            map_object = MapLayer.create_layer_object(object_type, map_object)
+            if not self.get_layer_by_type(layer_type):
+                self.add_layer_from_data(layer_type, [map_object])
+            else:
+                self.add_elem_to_layer_by_type(layer_type, map_object)
+    
+    def clear_objects_layers(self):
+        self.layers = [self.get_layer_by_type(LayerType.TILES)]
+   

@@ -4,16 +4,19 @@ import codecs
 import mapviewer
 import map
 
-from maptile import MapTile
+from classes.mapTile import MapTile
 from mapEditor import MapEditor
 from main_design import *
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QMessageBox, QDesktopWidget
+from PyQt5.QtWidgets import QMessageBox, QDesktopWidget, QFormLayout, QVBoxLayout, QLineEdit, QCheckBox, QGroupBox, QLabel
 from IOManager import *
 import functools, json , copy
 from infowindow import info_window
+from layers.layer_type import LayerType
 import logging
 import utils
+from classes.mapObjects import MapBaseObject as MapObject
+from layers.relations import get_layer_type_by_object_type
 
 logger = logging.getLogger('root')
 TILE_TYPES = ('block', 'road')
@@ -31,23 +34,27 @@ class duck_window(QtWidgets.QMainWindow):
     editor = None
     drawState = ''
     copyBuffer = [[]]
-
-    def __init__(self, locale='en', elem_info="doc/info.json"):
+    
+    def __init__(self, args, elem_info="doc/info.json"):
         super().__init__()
         # active items in editor
         self.active_items = []
 
-
+        #  additional windows for displaying information
         self.author_window = info_window()
         self.param_window = info_window()
         self.mater_window = info_window()
 
+        #  The brush button / override the closeEvent
         self.brush_button = QtWidgets.QToolButton()
         self.closeEvent = functools.partial(self.quit_program_event)
 
         # Set locale
-        self.locale = locale
-        
+        self.locale = args.locale
+
+        # Set debug mode
+        self.debug_mode = args.debug
+
         # Load element's info
         self.info_json = json.load(codecs.open(elem_info, "r", "utf-8"))
 
@@ -84,6 +91,7 @@ class duck_window(QtWidgets.QMainWindow):
         self.center()
         self.show()
 
+        #  Initialize button objects
         create_map = self.ui.create_new
         open_map = self.ui.open_map
         save_map = self.ui.save_map
@@ -98,13 +106,16 @@ class duck_window(QtWidgets.QMainWindow):
         change_map = self.ui.change_map
         change_layer = self.ui.change_layer
 
+        #  Initialize floating blocks
         block_widget = self.ui.block_widget
         info_widget = self.ui.info_widget
         map_info_widget = self.ui.map_info_widget
         layer_info_widget = self.ui.layer_info_widget
 
+        #  Signal from viewer
         self.mapviewer.selectionChanged.connect(self.selectionUpdate)
 
+        #  Assign actions to buttons
         create_map.triggered.connect(self.create_map_triggered)
         open_map.triggered.connect(self.open_map_triggered)
         save_map.triggered.connect(self.save_map_triggered)
@@ -125,6 +136,7 @@ class duck_window(QtWidgets.QMainWindow):
         map_info_widget.closeEvent = functools.partial(self.map_event)
         layer_info_widget.closeEvent = functools.partial(self.close_layer_window_event)
 
+        #  QToolBar setting
         tool_bar = self.ui.tool_bar
 
         a1 = QtWidgets.QAction(QtGui.QIcon("img/icons/new.png"), _translate("MainWindow", "New map"), self)
@@ -182,13 +194,16 @@ class duck_window(QtWidgets.QMainWindow):
         # Setup Layer Tree menu
         self.ui.layer_tree.setModel(QtGui.QStandardItemModel())  # set item model for tree
 
+        #  Customize the Blocks menu
         block_list_widget = self.ui.block_list
         block_list_widget.itemClicked.connect(self.item_list_clicked)
         block_list_widget.itemDoubleClicked.connect(self.item_list_double_clicked)
 
+        #  Customize the Map Editor menu
         default_fill = self.ui.default_fill
         delete_fill = self.ui.delete_fill
 
+        #  Fill out the list
         categories = self.info_json['categories']
         information = self.info_json['info']
         for group in categories:
@@ -222,14 +237,16 @@ class duck_window(QtWidgets.QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    #  Create a new map
     def create_map_triggered(self):
         new_map(self)
-        logger.debug("Length - {}; Items - {}".format(len(self.map.get_tile_layer()), len(self.map.get_item_layer())))
+        logger.debug("Length - {}".format(len(self.map.get_tile_layer().data)))
         self.mapviewer.offsetX = self.mapviewer.offsetY = 0
         self.mapviewer.scene().update()
         logger.debug("Creating a new map")
         self.update_layer_tree()
 
+    #  Open map
     def open_map_triggered(self):
         self.editor.save(self.map)
         open_map(self)
@@ -237,37 +254,51 @@ class duck_window(QtWidgets.QMainWindow):
         self.mapviewer.scene().update()
         self.update_layer_tree()
 
+    #  Save map
     def save_map_triggered(self):
         save_map(self)
         logger.debug("Save")
 
+    #  Save map as
     def save_map_as_triggered(self):
         save_map_as(self)
 
+    #  Export to png
     def export_png_triggered(self):
         export_png(self)
 
+    #  Calculate map characteristics
     def calc_param_triggered(self):
 
         text = get_map_specifications(self)
         self.show_info(self.param_window, _translate("MainWindow", "Map characteristics"), text)
 
+    #  Calculate map materials
     def calc_materials_triggered(self):
         text = get_map_materials(self)
         self.show_info(self.mater_window, _translate("MainWindow", "Map material"), text)
 
+    #  Help: About
     def about_author_triggered(self):
-        text = "Authors:\n alskaa;\n dihindee;\n ovc-serega;\n HardonCollider.\n\n Contact us on github!"
+        text = "Authors:\n alskaa;\n dihindee;\n ovc-serega;\n HadronCollider;\n light5551;\n snush.\n\n Contact us " \
+               "on github! "
         self.show_info(self.author_window, "About", text)
 
+    #  Exit
     def exit_triggered(self):
-        ret = self.quit_MessageBox()
-        if ret == QMessageBox.Cancel:
-            return
-        if ret == QMessageBox.Save:
-            save_map(self)
+        self.save_before_exit()
         QtCore.QCoreApplication.instance().quit()
 
+    # Save map before exit
+    def save_before_exit(self):
+        if not self.debug_mode:
+            ret = self.quit_MessageBox()
+            if ret == QMessageBox.Cancel:
+                return
+            if ret == QMessageBox.Save:
+                save_map(self)
+
+    #  Hide Block menu
     def change_blocks_toggled(self):
         block = self.ui.block_widget
         if self.ui.change_blocks.isChecked():
@@ -276,10 +307,12 @@ class duck_window(QtWidgets.QMainWindow):
         else:
             block.close()
 
+    #  Change button state
     def blocks_event(self, event):
         self.ui.change_blocks.setChecked(False)
         event.accept()
 
+    #  Hide information menu
     def change_info_toggled(self):
         block = self.ui.info_widget
         if self.ui.change_info.isChecked():
@@ -288,10 +321,12 @@ class duck_window(QtWidgets.QMainWindow):
         else:
             block.close()
 
+    #  Change button state
     def info_event(self, event):
         self.ui.change_info.setChecked(False)
         event.accept()
 
+    #  Hide the menu about map properties
     def change_map_toggled(self):
         block = self.ui.map_info_widget
         if self.ui.change_map.isChecked():
@@ -300,6 +335,7 @@ class duck_window(QtWidgets.QMainWindow):
         else:
             block.close()
 
+    #  Change button state
     def map_event(self, event):
         self.ui.change_map.setChecked(False)
         event.accept()
@@ -339,29 +375,51 @@ class duck_window(QtWidgets.QMainWindow):
         Show layer's elements as children in hierarchy (except tile layer)
         :return: -
         """
+        def signal_check_state(item):
+            """
+            update visible state of layer.
+            :return: -
+            """
+            layer = self.map.get_layer_by_name(item.text())
+            if not layer:
+                logger.debug("Not found layer: {}".format(item.text()))
+                return
+            
+            layer.visible = not layer.visible
+            logger.debug('Layer: {}; visible: {}'.format(item.text(), layer.visible))
+            self.map.set_layer(layer)
+            self.mapviewer.scene().update()
+            
         layer_tree_view = self.ui.layer_tree
         item_model = layer_tree_view.model()
         item_model.clear()
+        try:
+            item_model.itemChanged.disconnect()
+        except TypeError:
+            pass # only 1st time in update_layer_tree
+        item_model.itemChanged.connect(signal_check_state)
         item_model.setHorizontalHeaderLabels(['Name'])
         root_item = layer_tree_view.model().invisibleRootItem()
-        for layer_name in self.map.layer_list:
-            layer_item = QtGui.QStandardItem(layer_name)
+        for layer in self.map.layers:
+            layer_item = QtGui.QStandardItem(layer.name)
+            layer_item.setCheckable(True)
+            layer_item.setCheckState(QtCore.Qt.Checked if layer.visible else QtCore.Qt.Unchecked)
             root_item.appendRow(layer_item)
-            if layer_name == map.TILE_LAYER_NAME:
+            if layer.type == LayerType.TILES:
                 tile_elements = []
-                tile_layers = self.map.get_layer(layer_name)
-                for row in tile_layers:
+                for row in layer.data:
                     for tile in row:
                         tile_elements.append(tile.kind)
                 layer_elements = utils.count_elements(tile_elements)
             else:
-                layer_elements = utils.count_elements([elem.kind for elem in self.map.get_layer(layer_name)])
+                layer_elements = utils.count_elements([elem.kind for elem in layer.data])
             for kind, counter in layer_elements.most_common():
                 item = QtGui.QStandardItem("{} ({})".format(self.get_translation(self.info_json['info'][kind])['name'], counter))
                 layer_item.appendRow(item)
             layer_item.sortChildren(0)
         layer_tree_view.expandAll()
 
+    #  MessageBox to exit
     def quit_MessageBox(self):
         reply = QMessageBox(self)
         reply.setIcon(QMessageBox.Question)
@@ -373,20 +431,18 @@ class duck_window(QtWidgets.QMainWindow):
         ret = reply.exec()
         return ret
 
+    #  Program exit event
     def quit_program_event(self, event):
-        ret = self.quit_MessageBox()
-        if ret == QMessageBox.Cancel:
-            event.ignore()
-            return
-        if ret == QMessageBox.Save:
-            save_map(self)
+        self.save_before_exit()
 
+        #  Close additional dialog boxes
         self.author_window.exit()
         self.param_window.exit()
         self.mater_window.exit()
 
         event.accept()
 
+    #  Handle a click on an item from a list to a list
     def item_list_clicked(self):
         list = self.ui.block_list
         name = list.currentItem().data(0x0100)
@@ -417,6 +473,7 @@ class duck_window(QtWidgets.QMainWindow):
                 text += " {}: {} {}\n".format(_translate("MainWindow", "White"), elem["white"], _translate("MainWindow", "sm"))
             info_browser.setText(text)
 
+    #  Double click initiates as single click action
     def item_list_double_clicked(self):
         item_ui_list = self.ui.block_list
         item_name = item_ui_list.currentItem().data(0x0100)
@@ -429,16 +486,23 @@ class duck_window(QtWidgets.QMainWindow):
                 self.ui.default_fill.setCurrentText(self.get_translation(self.info_json['info'][item_name])['name'])
                 logger.debug("Set {} for brush".format(item_name))
             else:
-                self.map.add_item(MapObject(item_name))
+                self.map.add_objects_to_map([dict(kind=item_name,pos=(.0, .0), rotate=0, height=1,
+                                                  optional=False, static=True)], self.info_json['info'])
+                # TODO: need to understand what's the type and create desired class, not general
+                # also https://github.com/moevm/mse_visual_map_editor_for_duckietown/issues/122
+                # (for args, that can be edited and be different between classes)
                 self.mapviewer.scene().update()
-                self.update_layer_tree()
                 logger.debug("Add {} to map".format(item_name))
+            self.update_layer_tree()
 
+    #  Reset to default values
     def set_default_fill(self):
         default_fill = self.ui.default_fill.currentData()
         delete_fill = self.ui.delete_fill.currentData()
+        # TODO установка занчений по умолчанию
         logger.debug("{}; {}".format(default_fill, delete_fill))
 
+    #  Copy
     def copy_button_clicked(self):
         if self.brush_button.isChecked():
             self.brush_button.click()
@@ -446,6 +510,7 @@ class duck_window(QtWidgets.QMainWindow):
         self.copyBuffer = copy.copy(self.mapviewer.tileSelection)
         logger.debug("Copy")
 
+    #  Cut
     def cut_button_clicked(self):
         if self.brush_button.isChecked():
             self.brush_button.click()
@@ -453,6 +518,7 @@ class duck_window(QtWidgets.QMainWindow):
         self.copyBuffer = copy.copy(self.mapviewer.tileSelection)
         logger.debug("Cut")
 
+    #  Paste
     def insert_button_clicked(self):
         if len(self.copyBuffer) == 0:
             return
@@ -464,16 +530,22 @@ class duck_window(QtWidgets.QMainWindow):
             self.editor.moveSelection(self.copyBuffer, self.mapviewer.tileSelection[0], self.mapviewer.tileSelection[1],
                                       MapTile(self.ui.delete_fill.currentData()))
         self.mapviewer.scene().update()
+        self.update_layer_tree()
 
+    #  Delete
     def delete_button_clicked(self):
         self.editor.save(self.map)
         self.editor.deleteSelection(self.mapviewer.tileSelection, MapTile(self.ui.delete_fill.currentData()))
         self.mapviewer.scene().update()
+        self.update_layer_tree()
 
+    #  Undo
     def undo_button_clicked(self):
         self.editor.undo()
         self.mapviewer.scene().update()
+        self.update_layer_tree()
 
+    #  Brush mode
     def brush_mode(self):
         if self.brush_button.isChecked():
             self.drawState = 'brush'
@@ -482,7 +554,7 @@ class duck_window(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, e):
         selection = self.mapviewer.raw_selection
-        item_layer = self.map.get_item_layer()        
+        item_layer = self.map.get_objects_from_layers() # TODO: add self.current_layer for editing only it's objects?
         for item in item_layer:
             x, y = item.position['x'], item.position['y']
             if x > selection[0] and x < selection[2] and y > selection[1] and y < selection[3]:
@@ -502,12 +574,77 @@ class duck_window(QtWidgets.QMainWindow):
                     item.position['x'] -= EPS
                 elif key == QtCore.Qt.Key_D:
                     item.position['x'] += EPS
+                elif key == QtCore.Qt.Key_E:
+                    if len(self.active_items) == 1:
+                        self.create_form(self.active_items[0])
+                    else:
+                        logger.debug("I can't edit more than one object!")
             self.mapviewer.scene().update()
  
+    def create_form(self, active_object):
+        def accept():
+            for attr_name, attr in editable_attrs.items():
+                if attr_name == 'position':
+                    active_object.position['x'] = float(edit_obj['x'].text())
+                    active_object.position['y'] = float(edit_obj['y'].text())
+                    continue
+                if type(attr) == bool:
+                    active_object.__setattr__(attr_name, edit_obj[attr_name].isChecked())
+                    continue
+                if type(attr) == float:
+                    active_object.__setattr__(attr_name, float(edit_obj[attr_name].text()))
+                else:
+                    active_object.__setattr__(attr_name, edit_obj[attr_name].text())
+            dialog.close()
+            self.mapviewer.scene().update()
+
+        def reject():
+            dialog.close()
+
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle('Change attribute of object')
+        # buttonbox
+        buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        buttonBox.accepted.connect(accept)   
+        buttonBox.rejected.connect(reject) 
+        # form
+        formGroupBox = QGroupBox("Change attribute's object: {}".format(active_object.kind))
+
+        layout = QFormLayout()
+        editable_attrs = active_object.get_editable_attrs()
+        edit_obj = {}
+        for attr_name in sorted(editable_attrs):
+            attr = editable_attrs[attr_name]
+            if attr_name == 'position':
+                x_edit = QLineEdit(str(attr['x']))
+                y_edit = QLineEdit(str(attr['y']))
+                edit_obj['x'] = x_edit
+                edit_obj['y'] = y_edit
+                layout.addRow(QLabel("{}.X".format(attr_name)), x_edit)
+                layout.addRow(QLabel("{}.Y".format(attr_name)), y_edit)
+                continue
+            if type(attr) == bool:
+                check = QCheckBox()
+                check.setChecked(attr)
+                edit_obj[attr_name] = check
+                layout.addRow(QLabel(attr_name), check)
+                continue
+            edit = QLineEdit(str(attr))
+            edit_obj[attr_name] = edit
+            layout.addRow(QLabel(attr_name), edit)
+
+        formGroupBox.setLayout(layout)
+        # layout
+        mainLayout = QVBoxLayout() 
+        mainLayout.addWidget(formGroupBox)
+        mainLayout.addWidget(buttonBox)
+        dialog.setLayout(mainLayout)
+        dialog.exec_()
+    
     def rotateSelectedTiles(self):
         self.editor.save(self.map)
         selection = self.mapviewer.tileSelection
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         if selection:
             for i in range(max(selection[1], 0), min(selection[3], len(tile_layer))):
                 for j in range(max(selection[0], 0), min(selection[2], len(tile_layer[0]))):
@@ -518,11 +655,13 @@ class duck_window(QtWidgets.QMainWindow):
         self.editor.save(self.map)
         self.editor.trimBorders(True,True,True,True,MapTile(self.ui.delete_fill.currentData()))
         self.mapviewer.scene().update()
+        self.update_layer_tree()
+
 
     def selectionUpdate(self):
         selection = self.mapviewer.tileSelection
         filler = MapTile(self.ui.default_fill.currentData())
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         if self.drawState == 'brush':
             self.editor.save(self.map)
             self.editor.extendToFit(selection, selection[0], selection[1], MapTile(self.ui.delete_fill.currentData()))
@@ -536,8 +675,10 @@ class duck_window(QtWidgets.QMainWindow):
             for i in range(max(selection[0], 0), min(selection[2], len(tile_layer[0]))):
                 for j in range(max(selection[1], 0), min(selection[3], len(tile_layer))):
                     tile_layer[j][i] = copy.copy(filler)
+        self.update_layer_tree()
         self.mapviewer.scene().update()
 
+    # функция создания доп. информационного окна
     def show_info(self, name, title, text):
         name.set_window_name(title)
         name.set_text(text)
