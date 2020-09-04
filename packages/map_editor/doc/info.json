@@ -112,6 +112,35 @@
                 "bus",
                 "building"
             ]
+        },
+        {
+            "lang": {
+                "ru": {
+                    "name": "Вышки"
+                },
+                "en": {
+                    "name": "watchtowers"
+                }
+            },
+            "id": "watchower",
+            "elements": [
+                "watchtower"
+            ]
+        },
+        {
+            "lang": {
+                "ru": {
+                    "name": "Apriltags"
+                },
+                "en": {
+                    "name": "Apriltags"
+                }
+            },
+            "id": "apriltag",
+            "elements": [
+                "apriltag_300",
+                "apriltag_301"
+            ]
         }
     ],
     "info": {
@@ -318,7 +347,7 @@
             "type": "block",
             "length": 61,
             "yellow": 15,
-            "icon": "img/tiles/three_way_left.png",
+            "icon": "img/tiles/3way_left.png",
             "white": 81
         },
         "sign_right_T_intersect": {
@@ -364,7 +393,7 @@
             "type": "block",
             "length": 61,
             "yellow": 15,
-            "icon": "img/tiles/three_way_left.png",
+            "icon": "img/tiles/3way_right.png",
             "white": 81
         },
         "sign_T_intersection": {
@@ -438,7 +467,7 @@
             "type": "block",
             "length": 61,
             "yellow": 20,
-            "icon": "img/tiles/four_way_center.png",
+            "icon": "img/tiles/4way.png",
             "white": 40
         },
         "sign_no_left_turn": {
@@ -626,6 +655,48 @@
                 }
             },
             "icon": "img/signs/sign_oneway_left.png"
+        },
+        "watchtower": {
+            "type": "watchtower",
+            "lang": {
+                "ru": {
+                    "name": "вышка",
+                    "info": "test watchtower"
+                },
+                "en": {
+                    "name": "watchtower",
+                    "info": "test1 watchtower"
+                }
+            },
+            "icon": "img/objects/watchtower.png"
+        },
+        "apriltag_300": {
+            "type": "apriltag",
+            "lang": {
+                "ru": {
+                    "name": "Apriltag300",
+                    "info": "Apriltag300_ru"
+                },
+                "en": {
+                    "name": "Apriltag300",
+                    "info": "Apriltag300_en"
+                }
+            },
+            "icon": "img/apriltags/apriltag_300.png"
+        },
+        "apriltag_301": {
+            "type": "apriltag",
+            "lang": {
+                "ru": {
+                    "name": "Apriltag301",
+                    "info": "Apriltag301_ru"
+                },
+                "en": {
+                    "name": "Apriltag301",
+                    "info": "Apriltag301_en"
+                }
+            },
+            "icon": "img/apriltags/apriltag_301.png"
         },
         "empty": {
             "lang": {

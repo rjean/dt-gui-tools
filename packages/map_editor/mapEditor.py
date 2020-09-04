@@ -22,7 +22,7 @@ class MapEditor:
 
     def __createBuffer(self, selection):
         buffer = []
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         for i in range(selection[3] - selection[1]):
             buffer.append([])
             for j in range(selection[2] - selection[0]):
@@ -34,14 +34,14 @@ class MapEditor:
 
     def __extendAndPasteBuffer(self, selection, buffer, destX, destY, backgroundTile):
         self.extendToFit(selection, destX, destY, backgroundTile)
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         for i in range(len(buffer)):
             for j in range(len(buffer[i])):
                 # print('paste to ['+str(destX + j)+' ; ' + str(destY + i)+ ']')
                 tile_layer[destY + i][destX + j] = buffer[i][j]
 
     def extendToFit(self, selection, destX, destY, backgroundTile):
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         u, r, d, l = 0, 0, 0, 0
         if destX < 0:
             l = -destX
@@ -70,7 +70,7 @@ class MapEditor:
 
     # TO TEST
     def deleteSelection(self, selection, backgroundTile):
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         for y in range(max(0, selection[1]), min(selection[3], len(tile_layer))):
             for x in range(max(0, selection[0]), min(selection[2], len(tile_layer[0]))):
                 tile_layer[y][x] = copy.copy(backgroundTile)
@@ -78,7 +78,7 @@ class MapEditor:
 
     # TO TEST
     def addBorderLines(self, linesUp: int, linesRight: int, linesDown: int, linesLeft: int, backgroundTile):
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         for i in range(linesUp):
             l = len(tile_layer[0])
             tile_layer.insert(0, [])
@@ -100,11 +100,12 @@ class MapEditor:
                 tile_layer[j].append(copy.copy(backgroundTile))
         return
 
+        #  Removes lines at the edges if all tiles in the row are background
         # TO TEST
 
     def trimBorders(self, trimUp: bool, trimRight: bool, trimDown: bool, trimLeft: bool, backgroundTile):
         isLineEmpty = True
-        tile_layer = self.map.get_tile_layer()
+        tile_layer = self.map.get_tile_layer().data
         if trimDown:
             while isLineEmpty and tile_layer:
                 for i in range(len(tile_layer[len(tile_layer) - 1])):
@@ -148,10 +149,10 @@ class MapEditor:
 
     def save(self, map_to_save):
         # deep copy
-        backup = DuckietownMap()
+        backup = DuckietownMap(empty=True)
         # Fill backup layers
-        for layer_name in map_to_save.layer_list:
-            backup.set_layer(layer_name, copy.deepcopy(map_to_save.get_layer(layer_name)))
+        for layer in map_to_save.layers:
+            backup.add_layer(copy.deepcopy(layer))
         if len(self.memento) == self.memento.maxlen - 1:
             self.memento.popleft()
         self.memento.append(backup)
@@ -160,6 +161,7 @@ class MapEditor:
         if len(self.memento) == 0:
             return
         backup = self.memento.pop()
+        self.map.layers.clear()
         # Fill layers from backup
-        for layer_name in backup.layer_list:
-            self.map.set_layer(layer_name, backup.get_layer(layer_name))
+        for layer in backup.layers:
+            self.map.add_layer(layer)

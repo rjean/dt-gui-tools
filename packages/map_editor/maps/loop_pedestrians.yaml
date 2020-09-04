@@ -55,4 +55,10 @@ objects:
   height: 0.08
   static: False
 
+- kind: watchtower
+  pos: [4.0, 2]
+  rotate: 90
+  height: 0.08
+  
+
 tile_size: 0.585
