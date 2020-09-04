@@ -2,5 +2,4 @@
 numpy
 
 # Map editor
-
-PyQt5==5.14.0
+PyQt5
