@@ -17,6 +17,7 @@ import logging
 import utils
 from classes.mapObjects import MapBaseObject as MapObject
 from layers.relations import get_layer_type_by_object_type
+from forms.default_forms import question_form_yes_no
 
 logger = logging.getLogger('root')
 TILE_TYPES = ('block', 'road')
@@ -562,7 +563,17 @@ class duck_window(QtWidgets.QMainWindow):
                     self.active_items.append(item)
         key = e.key()
         if key == QtCore.Qt.Key_Q:
+            # clear object buffer
             self.active_items = []
+        if key == QtCore.Qt.Key_Backspace:
+            # delete object
+            if question_form_yes_no(self, "Deleting objects", "Delete objects from map?") == QMessageBox.Yes:
+                for item in self.active_items:
+                    object_type = self.info_json['info'][item.kind]['type']
+                    layer = self.map.get_layer_by_type(get_layer_type_by_object_type(object_type))
+                    layer.remove_object_from_layer(item)
+                self.active_items = []
+                self.update_layer_tree()         
         if self.active_items:
             for item in self.active_items:
                 logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position['x'], item.position['y']))
@@ -579,7 +590,7 @@ class duck_window(QtWidgets.QMainWindow):
                         self.create_form(self.active_items[0])
                     else:
                         logger.debug("I can't edit more than one object!")
-            self.mapviewer.scene().update()
+        self.mapviewer.scene().update()
  
     def create_form(self, active_object):
         def accept():
