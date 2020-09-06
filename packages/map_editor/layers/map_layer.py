@@ -67,6 +67,9 @@ class MapLayer:
             for layer_object in self.data:
                 yield layer_object
 
+    def remove_object_from_layer(self, layer_object):
+        self.data.remove(layer_object)
+
     @staticmethod
     def create_layer_object(object_type, object_data):
         return get_class_by_object_type(object_type)(object_data)
