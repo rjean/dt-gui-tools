@@ -61,6 +61,9 @@ RUN pip3 install -r ${REPO_PATH}/dependencies-py3.txt
 # copy the source code
 COPY ./packages "${REPO_PATH}/packages"
 
+# get the image_pipeline
+RUN git clone https://github.com/ros-perception/image_pipeline.git
+
 # build packages
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
   catkin build \
