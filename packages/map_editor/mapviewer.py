@@ -113,7 +113,6 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
                 obj_x = object_from_layer.position['x']
                 obj_y = object_from_layer.position['y']
                 obj_array = np.array((obj_x, obj_y))
-                print(np.linalg.norm(obj_array - event_x))
                 if np.linalg.norm(obj_array - event_x) < DELTA_EUCLIDEAN_DISTANCE:
                     return object_from_layer 
 
