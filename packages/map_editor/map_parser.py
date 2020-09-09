@@ -2,8 +2,9 @@
 import numpy as np
 
 from classes.mapTile import MapTile
-from PyQt5 import QtGui, QtCore
 from mapviewer import MapViewer
+from layers.layer_type import LayerType
+from PyQt5 import QtGui, QtCore
 import logging
 import yaml
 
@@ -246,40 +247,14 @@ def map_to_png(map_viewer: MapViewer, map_name):
     painter.end()
 
 
-def map_to_yaml(map, map_name):
-    # TODO: layers
-    if '.yaml' not in map_name:
-        map_name = map_name + '.yaml'
-    f = open(map_name, 'w')
-    f.write('tiles:\n')
-    for tile_string in map.get_tile_layer().data:
-        f.write('- [')
-        for tile in tile_string:
-            f.write(tile.kind)
-            if tile.rotation == 0:
-                if tile.kind != 'empty' and tile.kind != 'asphalt' and tile.kind != 'grass' and tile.kind != 'floor' and tile.kind != '4way':
-                    f.write('/' + rotation_val[tile.rotation])
-            else:
-                f.write('/' + rotation_val[tile.rotation])
-            if tile_string.index(tile) != len(tile_string) - 1:
-                f.write(' , ')
-        f.write(']\n')
-    item_layer = map.get_item_layer().data
-    if item_layer:
-        f.write('\nobjects:')
-        for map_object in item_layer:
-            f.write('\n- ')
-            f.write('kind: ' + map_object.kind)
-            f.write('\n  pos: [' + str(map_object.position['x']) + ', ' + str(map_object.position['y']) + ']')
-            f.write('\n  rotate: ' + str(map_object.rotation))
-            f.write('\n  height: ' + str(map_object.height))
-            if map_object.optional:
-                f.write('\n  optional: true')
-            if not map_object.static:
-                f.write('\n  static: False')
-            f.write('\n')
-    f.write('\ntile_size: 0.585')
-    f.close()
+def map_to_yaml(map, map_dir_path, lab_code):
+    map_info = dict(map)
+    for layer in map_info['layers']:
+        if layer['type'] == str(LayerType.TILES):
+            layer['gridSize'] = map_info['gridSize']
+        with open('{}/{}-{}.yaml'.format(map_dir_path, layer['type'], lab_code), 'w') as map_file:
+            yaml.safe_dump(layer, map_file, default_flow_style=None)
+    return
 
 
 def tiles_to_objects(tiles):
