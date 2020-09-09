@@ -90,6 +90,11 @@ LABEL org.duckietown.label.module.type="${REPO_NAME}" \
 # <== Do not change the code above this line
 # <==================================================
 
+## Python2 pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&\
+  python get-pip.py &&\
+  rm get-pip.py
+
 ## nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics

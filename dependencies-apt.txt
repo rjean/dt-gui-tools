@@ -12,6 +12,7 @@ ros-noetic-camera-calibration-parsers
 ros-noetic-camera-info-manager
 libgtk-3-dev
 ros-noetic-tf2-geometry-msgs
+python-dev
 
 # these are for VNC
 supervisor
