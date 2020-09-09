@@ -76,10 +76,11 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
                 ((max(self.mouseStartY, self.mouseCurY) - self.offsetY) / self.sc) / self.map.gridSize
             ]
             
-            self.tileSelection = [
-                int(v) + (1 if i > 1 else 0) 
-                for i, v in enumerate(self.raw_selection)
-            ]
+            if self.map.get_tile_layer().visible:
+                self.tileSelection = [
+                    int(v) + (1 if i > 1 else 0) 
+                    for i, v in enumerate(self.raw_selection)
+                ]
             self.selectionChanged.emit()
         else:
             self.rmbPressed = False
