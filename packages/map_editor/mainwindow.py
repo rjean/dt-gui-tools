@@ -565,9 +565,13 @@ class duck_window(QtWidgets.QMainWindow):
         if key == QtCore.Qt.Key_Q:
             # clear object buffer
             self.active_items = []
+            # save map after clearing buffer
+            self.editor.save(self.map)
         if key == QtCore.Qt.Key_Backspace:
             # delete object
             if question_form_yes_no(self, "Deleting objects", "Delete objects from map?") == QMessageBox.Yes:
+                # save map before deleting objects
+                self.editor.save(self.map)
                 for item in self.active_items:
                     object_type = self.info_json['info'][item.kind]['type']
                     layer = self.map.get_layer_by_type(get_layer_type_by_object_type(object_type))
