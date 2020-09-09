@@ -114,6 +114,7 @@ class duck_window(QtWidgets.QMainWindow):
 
         #  Signal from viewer
         self.mapviewer.selectionChanged.connect(self.selectionUpdate)
+        self.mapviewer.editObjectChanged.connect(self.create_form)
 
         #  Assign actions to buttons
         create_map.triggered.connect(self.create_map_triggered)
@@ -581,7 +582,7 @@ class duck_window(QtWidgets.QMainWindow):
                         logger.debug("I can't edit more than one object!")
             self.mapviewer.scene().update()
  
-    def create_form(self, active_object):
+    def create_form(self, active_object: MapObject):
         def accept():
             for attr_name, attr in editable_attrs.items():
                 if attr_name == 'position':
