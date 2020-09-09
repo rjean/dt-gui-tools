@@ -6,8 +6,8 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 ARG ICON="desktop"
 
 # novnc and websockify versions to use
-ARG NOVNC_VERSION="35dd3c2"
-ARG WEBSOCKIFY_VERSION="3646575"
+ARG NOVNC_VERSION="v1.2.0"
+ARG WEBSOCKIFY_VERSION="v0.9.0"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -136,12 +136,12 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 # fetch noVNC
 ARG NOVNC_VERSION
 RUN git clone https://github.com/novnc/noVNC /src/web/static/novnc \
-    && git -C /src/web/static/novnc checkout ${NOVNC_VERSION}
+    && git -C /src/web/static/novnc checkout tags/${NOVNC_VERSION}
 
 # fetch websockify
 ARG WEBSOCKIFY_VERSION
-RUN git clone https://github.com/novnc/websockify /src/web/static/websockify \
-    && git -C /src/web/static/websockify checkout ${WEBSOCKIFY_VERSION}
+# RUN git clone https://github.com/novnc/websockify /src/web/static/websockify \
+#     && git -C /src/web/static/websockify checkout tags/${WEBSOCKIFY_VERSION}
 
 # build frontend
 COPY assets/vnc/web /src/web

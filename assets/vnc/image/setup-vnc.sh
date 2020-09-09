@@ -61,8 +61,9 @@ if [ -n "$HTTP_PASSWORD" ]; then
 fi
 
 # novnc websockify
-ln -s /usr/local/lib/web/frontend/static/websockify /usr/local/lib/web/frontend/static/novnc/utils/websockify
-chmod +x /usr/local/lib/web/frontend/static/websockify/run
+# Commented out to force use of apt version
+#ln -s /usr/local/lib/web/frontend/static/websockify /usr/local/lib/web/frontend/static/novnc/utils/websockify
+#chmod +x /usr/local/lib/web/frontend/static/websockify/run
 
 # clearup
 PASSWORD=

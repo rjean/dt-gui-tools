@@ -35,3 +35,4 @@ gtk2-engines-pixbuf
 gtk2-engines-murrine
 ttf-ubuntu-font-family
 ttf-wqy-zenhei
+python3-websockify
