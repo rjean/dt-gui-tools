@@ -534,6 +534,8 @@ class duck_window(QtWidgets.QMainWindow):
 
     #  Delete
     def delete_button_clicked(self):
+        if not self.map.get_tile_layer().visible:
+            return 
         self.editor.save(self.map)
         self.editor.deleteSelection(self.mapviewer.tileSelection, MapTile(self.ui.delete_fill.currentData()))
         self.mapviewer.scene().update()
