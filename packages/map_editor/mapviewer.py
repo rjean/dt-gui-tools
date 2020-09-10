@@ -11,7 +11,7 @@ OBJECT_DIR_PATHS = ['./img/signs',
                     './img/apriltags',
                     './img/objects']
 
-DELTA_EUCLIDEAN_DISTANCE = .1
+DELTA_EUCLIDEAN_DISTANCE = .15
 
 class MapViewer(QGraphicsView, QtWidgets.QWidget):
     map = None
