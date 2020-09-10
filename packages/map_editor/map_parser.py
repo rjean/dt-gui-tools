@@ -247,7 +247,7 @@ def map_to_png(map_viewer: MapViewer, map_name):
     painter.end()
 
 
-def map_to_yaml(map, map_dir_path, lab_code):
+def map_to_yaml(map, map_dir_path, lab_code=None):
     map_info = dict(map)
     for layer in map_info['layers']:
         if layer['type'] == str(LayerType.TILES):

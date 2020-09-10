@@ -25,10 +25,13 @@ class MapLayer:
     def add_elem(self, elem):
         """
         Add element to layer's data
-        :param elem: elem for adding
+        :param elem: elem for adding or list of elements
         :return: -
         """
-        self.data.append(elem)
+        if type(elem) == list:
+            self.data.extend(elem)
+        else:
+            self.data.append(elem)
 
     def get_processed_layer_data(self):
         """
