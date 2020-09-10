@@ -115,7 +115,7 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
 
         # Draw tile layer
         tile_layer = self.map.get_tile_layer()
-        if tile_layer.visible:
+        if tile_layer and tile_layer.visible:
             self.draw_tiles(tile_layer.data, painter, global_transform)
         # painter.scale(self.sc, self.sc)
         # Draw layer w/ objects
