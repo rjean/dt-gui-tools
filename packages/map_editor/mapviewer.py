@@ -183,3 +183,4 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
                               self.map.gridSize * self.sc * layer_object.position['y']- height/2,
                               width, height),
                 self.objects[layer_object.kind]) if layer_object.kind in self.objects else None
+

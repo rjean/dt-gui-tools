@@ -557,24 +557,25 @@ class duck_window(QtWidgets.QMainWindow):
         selection = self.mapviewer.raw_selection
         item_layer = self.map.get_objects_from_layers() # TODO: add self.current_layer for editing only it's objects?
         for item in item_layer:
-            x, y = item.position['x'], item.position['y']
+            x, y = item.position
             if x > selection[0] and x < selection[2] and y > selection[1] and y < selection[3]:
                 if item not in self.active_items:
                     self.active_items.append(item)
         key = e.key()
         if key == QtCore.Qt.Key_Q:
             self.active_items = []
+            self.mapviewer.raw_selection = [0]*4
         if self.active_items:
             for item in self.active_items:
-                logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position['x'], item.position['y']))
+                logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position[0], item.position[1]))
                 if key == QtCore.Qt.Key_W:
-                    item.position['y'] -= EPS
+                    item.position[1] -= EPS
                 elif key == QtCore.Qt.Key_S:
-                    item.position['y'] += EPS
+                    item.position[1] += EPS
                 elif key == QtCore.Qt.Key_A:
-                    item.position['x'] -= EPS
+                    item.position[0] -= EPS
                 elif key == QtCore.Qt.Key_D:
-                    item.position['x'] += EPS
+                    item.position[0] += EPS
                 elif key == QtCore.Qt.Key_E:
                     if len(self.active_items) == 1:
                         self.create_form(self.active_items[0])
@@ -586,8 +587,8 @@ class duck_window(QtWidgets.QMainWindow):
         def accept():
             for attr_name, attr in editable_attrs.items():
                 if attr_name == 'position':
-                    active_object.position['x'] = float(edit_obj['x'].text())
-                    active_object.position['y'] = float(edit_obj['y'].text())
+                    active_object.position[0] = float(edit_obj['x'].text())
+                    active_object.position[1] = float(edit_obj['y'].text())
                     continue
                 if type(attr) == bool:
                     active_object.__setattr__(attr_name, edit_obj[attr_name].isChecked())
@@ -617,8 +618,8 @@ class duck_window(QtWidgets.QMainWindow):
         for attr_name in sorted(editable_attrs):
             attr = editable_attrs[attr_name]
             if attr_name == 'position':
-                x_edit = QLineEdit(str(attr['x']))
-                y_edit = QLineEdit(str(attr['y']))
+                x_edit = QLineEdit(str(attr[0]))
+                y_edit = QLineEdit(str(attr[1]))
                 edit_obj['x'] = x_edit
                 edit_obj['y'] = y_edit
                 layout.addRow(QLabel("{}.X".format(attr_name)), x_edit)

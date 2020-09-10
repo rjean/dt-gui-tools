@@ -5,7 +5,7 @@ from .baseClass import BaseEditorClass
 class MapBaseObject(BaseEditorClass):
     def __init__(self, init_info):
         BaseEditorClass.__init__(self, init_info)
-        self.position = {'x': init_info['pos'][0], 'y': init_info['pos'][1]}
+        self.position = list(init_info['pos'])
         self.height = init_info['height']
         self.optional = init_info['optional']
         self.static = init_info['static']
