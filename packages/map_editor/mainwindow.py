@@ -563,6 +563,7 @@ class duck_window(QtWidgets.QMainWindow):
         key = e.key()
         if key == QtCore.Qt.Key_Q:
             self.active_items = []
+            self.mapviewer.raw_selection = [0]*4
         if self.active_items:
             for item in self.active_items:
                 logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position[0], item.position[1]))
