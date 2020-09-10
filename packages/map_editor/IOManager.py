@@ -29,10 +29,12 @@ def open_map(parent: QtWidgets.QWidget):
 
 
 def save_map_as(parent: QtWidgets.QWidget):
-    if parent.map.get_tile_layer():
-        output_map = QFileDialog.getSaveFileName(parent, 'Save file', '.', filter='YAML file (*.yaml)')[0]
-        if output_map:
-            map_to_yaml(parent.map, output_map)
+    if parent.map.layers:
+        output_map_dir = QFileDialog.getExistingDirectory(parent, 'Save map to directory', '.',  QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
+        if output_map_dir:
+            lab_code, ok = QtWidgets.QInputDialog.getText(parent, "Lab code", "Enter Lab's code for map:")
+            if ok:
+                map_to_yaml(parent.map, output_map_dir, lab_code)
 
 
 def save_map(parent: QtWidgets.QWidget):

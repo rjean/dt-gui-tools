@@ -14,6 +14,13 @@ class DuckietownMap:
     def __init__(self, empty=False):
         self.layers = [MapLayer(LayerType.TILES, [[]]), MapLayer(LayerType.ITEMS, [])] if not empty else []
 
+    def __iter__(self):
+        yield from {
+            'name': self.name,
+            'gridSize': self.gridSize,
+            'layers': [dict(layer) for layer in self.layers]
+        }.items()
+
     # Getters
 
     def get_tile_layer(self):
