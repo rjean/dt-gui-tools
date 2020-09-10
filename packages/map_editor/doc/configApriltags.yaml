@@ -1,0 +1,8 @@
+types:
+- type: TrafficSign
+  from: 1
+  to: 249
+- type: Localization
+  from: 300
+  to: 399
+# 300 399

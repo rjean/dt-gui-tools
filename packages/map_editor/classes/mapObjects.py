@@ -46,7 +46,7 @@ class WatchTowerObject(MapBaseObject):
 
     def __init__(self, init_info):
         MapBaseObject.__init__(self, init_info)
-        self.hostname = init_info["hostname"] if "hostname" in init_info else "watchtower02" # TODO: How to init hostname?
+        self.hostname = init_info["hostname"] if "hostname" in init_info else "watchtower00" # TODO: How to init hostname?
 
     def get_editable_attrs(self):
         return {

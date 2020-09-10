@@ -17,6 +17,8 @@ import logging
 import utils
 from classes.mapObjects import MapBaseObject as MapObject
 from layers.relations import get_layer_type_by_object_type
+from configloader import get_duckietown_types
+from forms.new_tag_object import NewTagForm
 
 logger = logging.getLogger('root')
 TILE_TYPES = ('block', 'road')
@@ -57,6 +59,11 @@ class duck_window(QtWidgets.QMainWindow):
 
         # Load element's info
         self.info_json = json.load(codecs.open(elem_info, "r", "utf-8"))
+
+        # Loads info about types from duckietown
+        self.duckietown_types_apriltags = get_duckietown_types()
+        self.new_tag_class = NewTagForm()
+        print(self.duckietown_types_apriltags)
 
         self.map = map.DuckietownMap()
         self.ui = Ui_MainWindow()
@@ -563,6 +570,9 @@ class duck_window(QtWidgets.QMainWindow):
         key = e.key()
         if key == QtCore.Qt.Key_Q:
             self.active_items = []
+        elif key == QtCore.Qt.Key_R:
+            print('was j')
+            self.new_tag_class.create_form()
         if self.active_items:
             for item in self.active_items:
                 logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position['x'], item.position['y']))
