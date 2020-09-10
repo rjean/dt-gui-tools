@@ -17,7 +17,7 @@ class DuckietownMap:
     def __iter__(self):
         yield from {
             'name': self.name,
-            'gridSize': self.gridSize,
+            'tile_size': self.gridSize,
             'layers': [dict(layer) for layer in self.layers]
         }.items()
 

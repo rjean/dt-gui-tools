@@ -251,8 +251,8 @@ def map_to_yaml(map, map_dir_path, lab_code):
     map_info = dict(map)
     for layer in map_info['layers']:
         if layer['type'] == str(LayerType.TILES):
-            layer['gridSize'] = map_info['gridSize']
-        with open('{}/{}-{}.yaml'.format(map_dir_path, layer['type'], lab_code), 'w') as map_file:
+            layer['tile_size'] = map_info['tile_size']/100
+        with open('{}/{}-{}.yaml'.format(map_dir_path, layer['type'], lab_code if lab_code else layer['name']), 'w') as map_file:
             yaml.safe_dump(layer, map_file, default_flow_style=None)
     return
 

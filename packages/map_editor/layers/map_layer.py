@@ -10,7 +10,7 @@ logger = logging.getLogger('root')
 
 class MapLayer:
     def __init__(self, layer_type: LayerType, layer_data: list, name=''):
-        self.name = name if name else layer_type.value
+        self.name = name
         self.type = layer_type
         self.data = layer_data
         self.visible = True
@@ -18,6 +18,7 @@ class MapLayer:
     def __iter__(self):
         yield from {
             'type': str(self.type),
+            'name': self.name,
             'data': self.get_processed_layer_data(),
         }.items()
 
