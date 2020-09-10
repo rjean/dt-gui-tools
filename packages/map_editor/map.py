@@ -226,6 +226,28 @@ class DuckietownMap:
             else:
                 self.add_elem_to_layer_by_type(layer_type, map_object)
     
+    def add_objects_to_layer(self, objects, layer_type, layer_name=''):
+        objects_to_layer = []
+        obj_class = layer_relations.get_class_by_layer_type(layer_type)
+        # adding tile layer
+        if layer_type == LayerType.TILES:
+            for layer_object in objects:
+                new_obj = []
+                for tile in layer_object:
+                    new_obj.append(obj_class(tile))
+                objects_to_layer.append(new_obj)
+            self.add_layer_from_data(layer_type, objects_to_layer, layer_name)
+        else:
+            layer = self.get_layer_by_type(layer_type)
+            for layer_object in objects:
+
+                objects_to_layer.append(obj_class(layer_object))
+            layer = self.get_layer_by_type(layer_type)
+            if layer:
+                layer.add_elem(objects_to_layer)
+            else:
+                self.add_layer_from_data(layer_type, objects_to_layer, layer_name)
+
     def clear_objects_layers(self):
         self.layers = [self.get_layer_by_type(LayerType.TILES)]
    
