@@ -17,6 +17,7 @@ import logging
 import utils
 from classes.mapObjects import MapBaseObject as MapObject
 from layers.relations import get_layer_type_by_object_type
+from forms.default_forms import question_form_yes_no
 
 logger = logging.getLogger('root')
 TILE_TYPES = ('block', 'road')
@@ -486,6 +487,9 @@ class duck_window(QtWidgets.QMainWindow):
                 self.ui.default_fill.setCurrentText(self.get_translation(self.info_json['info'][item_name])['name'])
                 logger.debug("Set {} for brush".format(item_name))
             else:
+                # save map before adding object
+                self.editor.save(self.map)
+                # adding object
                 self.map.add_objects_to_map([dict(kind=item_name,pos=(.0, .0), rotate=0, height=1,
                                                   optional=False, static=True)], self.info_json['info'])
                 # TODO: need to understand what's the type and create desired class, not general
@@ -555,16 +559,35 @@ class duck_window(QtWidgets.QMainWindow):
     def keyPressEvent(self, e):
         selection = self.mapviewer.raw_selection
         item_layer = self.map.get_objects_from_layers() # TODO: add self.current_layer for editing only it's objects?
+        new_selected_obj = False
         for item in item_layer:
             x, y = item.position
             if x > selection[0] and x < selection[2] and y > selection[1] and y < selection[3]:
                 if item not in self.active_items:
                     self.active_items.append(item)
+                    new_selected_obj = True
+        if new_selected_obj:
+            # save map if new objects are selected
+            self.editor.save(self.map)
         key = e.key()
         if key == QtCore.Qt.Key_Q:
+            # clear object buffer
             self.active_items = []
             self.mapviewer.raw_selection = [0]*4
         if self.active_items:
+            if key == QtCore.Qt.Key_Backspace:
+                # delete object
+                if question_form_yes_no(self, "Deleting objects", "Delete objects from map?") == QMessageBox.Yes:
+                    # save map before deleting objects
+                    self.editor.save(self.map)
+                    for item in self.active_items:
+                        object_type = self.info_json['info'][item.kind]['type']
+                        layer = self.map.get_layer_by_type(get_layer_type_by_object_type(object_type))
+                        layer.remove_object_from_layer(item)
+                    self.active_items = []
+                    self.mapviewer.scene().update()
+                    self.update_layer_tree()
+                return
             for item in self.active_items:
                 logger.debug("Name of item: {}; X - {}; Y - {};".format(item.kind, item.position[0], item.position[1]))
                 if key == QtCore.Qt.Key_W:
@@ -580,7 +603,7 @@ class duck_window(QtWidgets.QMainWindow):
                         self.create_form(self.active_items[0])
                     else:
                         logger.debug("I can't edit more than one object!")
-            self.mapviewer.scene().update()
+        self.mapviewer.scene().update()
  
     def create_form(self, active_object):
         def accept():
