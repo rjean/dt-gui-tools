@@ -1,0 +1,15 @@
+data:
+- height: 1
+  kind: apriltag_301
+  optional: false
+  pos: [4.0, 0.0]
+  rotate: 0
+  static: true
+- height: 1
+  kind: apriltag_300
+  optional: false
+  pos: [5.0, 0.0]
+  rotate: 0
+  static: true
+name: LAB-CODE
+type: 2-groundtags

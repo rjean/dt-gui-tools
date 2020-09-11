@@ -1,0 +1,21 @@
+data:
+- height: 1
+  kind: sign_pedestrian
+  optional: false
+  pos: [1.0, 0.0]
+  rotate: 0
+  static: true
+- height: 1
+  kind: sign_left_T_intersect
+  optional: false
+  pos: [2.0, 0.0]
+  rotate: 0
+  static: true
+- height: 1
+  kind: sign_4_way_intersect
+  optional: false
+  pos: [3.0, 0.0]
+  rotate: 0
+  static: true
+name: LAB-CODE
+type: 1-signs

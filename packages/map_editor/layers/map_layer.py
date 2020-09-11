@@ -10,46 +10,50 @@ logger = logging.getLogger('root')
 
 class MapLayer:
     def __init__(self, layer_type: LayerType, layer_data: list, name=''):
-        self.name = name if name else layer_type.value
+        self.name = name
         self.type = layer_type
         self.data = layer_data
         self.visible = True
 
     def __iter__(self):
         yield from {
-            'name': self.name,
             'type': str(self.type),
+            'name': self.name,
             'data': self.get_processed_layer_data(),
         }.items()
 
     def add_elem(self, elem):
         """
         Add element to layer's data
-        :param elem: elem for adding
+        :param elem: elem for adding or list of elements
         :return: -
         """
-        self.data.append(elem)
+        if type(elem) == list:
+            self.data.extend(elem)
+        else:
+            self.data.append(elem)
 
     def get_processed_layer_data(self):
         """
         Get layer data as dict()
         :return: dict
         """
-        def process_data(data):
+        def process_data(data, process_method=dict):
             """
             Process list of data
             :param data: list(), layer's data
-            :return: list of dict()
+            :param process_method: function for processing data_element from data
+            :return: list of process_method(data_element)
             """
             processed_data = []
             for elem in data:
-                processed_data.append(dict(elem))  # TODO: __iter__ for MapObject
+                processed_data.append(process_method(elem))
             return processed_data
 
         if self.type == LayerType.TILES:
             layer_data = []
             for row in self.data:
-                layer_data.append(process_data(row))
+                layer_data.append(process_data(row, process_method=str))
             return layer_data
         else:
             return process_data(self.data)
@@ -66,6 +70,9 @@ class MapLayer:
         else:
             for layer_object in self.data:
                 yield layer_object
+
+    def remove_object_from_layer(self, layer_object):
+        self.data.remove(layer_object)
 
     @staticmethod
     def create_layer_object(object_type, object_data):
