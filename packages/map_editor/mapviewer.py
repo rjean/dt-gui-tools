@@ -3,12 +3,15 @@ from PyQt5.QtWidgets import QGraphicsView
 from PyQt5 import QtCore, QtGui, QtWidgets
 from map import DuckietownMap
 from utils import get_list_dir_with_path
+from classes.mapObjects import MapBaseObject
+import numpy as np
 
 TILES_DIR_PATH = './img/tiles'
 OBJECT_DIR_PATHS = ['./img/signs',
                     './img/apriltags',
                     './img/objects']
 
+DELTA_EUCLIDEAN_DISTANCE = .15
 
 class MapViewer(QGraphicsView, QtWidgets.QWidget):
     map = None
@@ -27,6 +30,7 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
     #  If the selection is outside the array to the right - width / height
     tileSelection = [0] * 4
     selectionChanged = QtCore.pyqtSignal()
+    editObjectChanged = QtCore.pyqtSignal(MapBaseObject)
     lmbClicked = QtCore.pyqtSignal(int, int)  #  click coordinates as an index of the clicked tile
 
     def __init__(self):
@@ -56,7 +60,7 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
             return
         self.sc *= sf
         self.scene().update()
-
+    
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.LeftButton:
             self.lmbPressed = False
@@ -86,13 +90,31 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
         self.scene().update()
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        x, y = event.x(), event.y()
         if event.buttons() == QtCore.Qt.RightButton:
-            self.rmbPrevPos = [event.x(), event.y()]
-            self.rmbPressed = True
+            x_map = (x - self.offsetX) / self.sc / self.map.gridSize
+            y_map = (y - self.offsetY) / self.sc / self.map.gridSize
+            obj = self.find_object(x_map, y_map)
+            if obj:
+                self.editObjectChanged.emit(obj)
+            else:
+                # if press event is not near with any object
+                self.rmbPrevPos = [x, y]
+                self.rmbPressed = True
         elif event.buttons() == QtCore.Qt.LeftButton:
             self.lmbPressed = True
-            self.mouseCurX = self.mouseStartX = event.x()
-            self.mouseCurY = self.mouseStartY = event.y()
+            self.mouseCurX = self.mouseStartX = x
+            self.mouseCurY = self.mouseStartY = y
+
+    def find_object(self, x, y):
+        event_x = np.array((x, y))
+        for layer in self.map.get_object_layers(only_visible=True):
+            for object_from_layer in layer.get_objects():
+                obj_x = object_from_layer.position['x']
+                obj_y = object_from_layer.position['y']
+                obj_array = np.array((obj_x, obj_y))
+                if np.linalg.norm(obj_array - event_x) < DELTA_EUCLIDEAN_DISTANCE:
+                    return object_from_layer 
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.rmbPressed:
@@ -155,8 +177,10 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
 
     def draw_objects(self, layer_data, painter):
         for layer_object in layer_data:
+            width, height = self.map.gridSize * self.sc / 2, self.map.gridSize * self.sc / 2
             painter.drawImage(
-                QtCore.QRectF(self.map.gridSize * self.sc * layer_object.position[0],
-                              self.map.gridSize * self.sc * layer_object.position[1],
-                              self.map.gridSize * self.sc / 2, self.map.gridSize * self.sc / 2),
+                QtCore.QRectF(self.map.gridSize * self.sc * layer_object.position['x']- width/2,
+                              self.map.gridSize * self.sc * layer_object.position['y']- height/2,
+                              width, height),
                 self.objects[layer_object.kind]) if layer_object.kind in self.objects else None
+
