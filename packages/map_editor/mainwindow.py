@@ -584,6 +584,7 @@ class duck_window(QtWidgets.QMainWindow):
                         layer = self.map.get_layer_by_type(get_layer_type_by_object_type(object_type))
                         layer.remove_object_from_layer(item)
                     self.active_items = []
+                    self.mapviewer.scene().update()
                     self.update_layer_tree()
                 return
             for item in self.active_items:
