@@ -66,3 +66,9 @@ def get_layer_type_by_object_type(object_type):
             return layer_type
     else:
         return LayerType.ITEMS
+
+
+def get_layer_type_by_value(type_value):
+    for layer_type in LayerType: 
+        if type_value == layer_type.value:
+            return layer_type

@@ -14,8 +14,8 @@ class MapBaseObject(BaseEditorClass):
         yield from {
             'kind': self.kind,
             'height': self.height,
-            'position': self.position,
-            'rotation': self.rotation,
+            'pos': self.position,
+            'rotate': self.rotation,
             'optional': self.optional,
             'static': self.static
         }.items()
@@ -23,8 +23,8 @@ class MapBaseObject(BaseEditorClass):
     def get_editable_attrs(self):
         return {
             'height': self.height,
-            'position': self.position,
-            'rotation': self.rotation,
+            'pos': self.position,
+            'rotate': self.rotation,
             'optional': self.optional,
             'static': self.static
         }
@@ -51,8 +51,8 @@ class WatchTowerObject(MapBaseObject):
     def get_editable_attrs(self):
         return {
             'height': self.height,
-            'position': self.position,
-            'rotation': self.rotation,
+            'pos': self.position,
+            'rotate': self.rotation,
             'hostname': self.hostname
         }
 

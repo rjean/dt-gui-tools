@@ -402,7 +402,7 @@ class duck_window(QtWidgets.QMainWindow):
         item_model.setHorizontalHeaderLabels(['Name'])
         root_item = layer_tree_view.model().invisibleRootItem()
         for layer in self.map.layers:
-            layer_item = QtGui.QStandardItem(layer.name)
+            layer_item = QtGui.QStandardItem(str(layer.type))
             layer_item.setCheckable(True)
             layer_item.setCheckState(QtCore.Qt.Checked if layer.visible else QtCore.Qt.Unchecked)
             root_item.appendRow(layer_item)
