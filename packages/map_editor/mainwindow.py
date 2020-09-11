@@ -609,7 +609,7 @@ class duck_window(QtWidgets.QMainWindow):
     def create_form(self, active_object: MapObject):
         def accept():
             for attr_name, attr in editable_attrs.items():
-                if attr_name == 'position':
+                if attr_name == 'pos':
                     active_object.position[0] = float(edit_obj['x'].text())
                     active_object.position[1] = float(edit_obj['y'].text())
                     continue
@@ -640,7 +640,7 @@ class duck_window(QtWidgets.QMainWindow):
         edit_obj = {}
         for attr_name in sorted(editable_attrs):
             attr = editable_attrs[attr_name]
-            if attr_name == 'position':
+            if attr_name == 'pos':
                 x_edit = QLineEdit(str(attr[0]))
                 y_edit = QLineEdit(str(attr[1]))
                 edit_obj['x'] = x_edit

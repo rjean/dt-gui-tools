@@ -110,8 +110,8 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
         event_x = np.array((x, y))
         for layer in self.map.get_object_layers(only_visible=True):
             for object_from_layer in layer.get_objects():
-                obj_x = object_from_layer.position['x']
-                obj_y = object_from_layer.position['y']
+                obj_x = object_from_layer.position[0]
+                obj_y = object_from_layer.position[1]
                 obj_array = np.array((obj_x, obj_y))
                 if np.linalg.norm(obj_array - event_x) < DELTA_EUCLIDEAN_DISTANCE:
                     return object_from_layer 
@@ -179,8 +179,8 @@ class MapViewer(QGraphicsView, QtWidgets.QWidget):
         for layer_object in layer_data:
             width, height = self.map.gridSize * self.sc / 2, self.map.gridSize * self.sc / 2
             painter.drawImage(
-                QtCore.QRectF(self.map.gridSize * self.sc * layer_object.position['x']- width/2,
-                              self.map.gridSize * self.sc * layer_object.position['y']- height/2,
+                QtCore.QRectF(self.map.gridSize * self.sc * layer_object.position[0]- width/2,
+                              self.map.gridSize * self.sc * layer_object.position[1]- height/2,
                               width, height),
                 self.objects[layer_object.kind]) if layer_object.kind in self.objects else None
 
