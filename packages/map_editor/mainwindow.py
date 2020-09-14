@@ -65,7 +65,6 @@ class duck_window(QtWidgets.QMainWindow):
         # Loads info about types from duckietown
         self.duckietown_types_apriltags = get_duckietown_types()
         self.new_tag_class = NewTagForm(self.duckietown_types_apriltags)
-        print(self.duckietown_types_apriltags)
 
         self.map = map.DuckietownMap()
         self.ui = Ui_MainWindow()
@@ -688,9 +687,6 @@ class duck_window(QtWidgets.QMainWindow):
             self.mapviewer.scene().update()
 
     def add_apriltag(self, apriltag: GroundAprilTagObject):
-        print('addddd')
-        print(apriltag)
-        #self.map.add_elem_to_layer(LayerType.GROUND_APRILTAG, apriltag)
         self.map.add_objects_to_map(apriltag, self.info_json['info'])
         self.update_layer_tree()
         self.mapviewer.scene().update()

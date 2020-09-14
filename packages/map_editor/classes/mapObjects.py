@@ -48,6 +48,17 @@ class WatchTowerObject(MapBaseObject):
         MapBaseObject.__init__(self, init_info)
         self.hostname = init_info["hostname"] if "hostname" in init_info else "watchtower00" # TODO: How to init hostname?
 
+    def __iter__(self):
+        yield from {
+            'kind': self.kind,
+            'height': self.height,
+            'pos': self.position,
+            'rotate': self.rotation,
+            'optional': self.optional,
+            'static': self.static,
+            'hostname': self.hostname
+        }.items()
+
     def get_editable_attrs(self):
         return {
             'height': self.height,
@@ -64,6 +75,7 @@ class GroundAprilTagObject(MapBaseObject):
         self.tag_id = init_info["tag_id"] if "tag_id" in init_info else 0
         self.tag_type = init_info["tag_type"] if "tag_type" in init_info else ""
 
+
     def get_editable_attrs(self):
         return {
             'pos': self.position,
@@ -71,3 +83,15 @@ class GroundAprilTagObject(MapBaseObject):
             "tag_id": self.tag_id,
             "tag_type": self.tag_type
         }
+    
+    def __iter__(self):
+        yield from {
+            'kind': self.kind,
+            'height': self.height,
+            'pos': self.position,
+            'rotate': self.rotation,
+            'optional': self.optional,
+            'static': self.static,
+            "tag_id": self.tag_id,
+            "tag_type": self.tag_type
+        }.items()
