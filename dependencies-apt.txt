@@ -3,7 +3,7 @@ ros-noetic-rviz
 ros-noetic-rqt
 ros-noetic-rqt-common-plugins
 ros-noetic-image-geometry
-python-pygame
+python3-pygame
 
 # We are using camera-calibration from source
 # to prevent python2 shebang error
