@@ -115,7 +115,7 @@ COPY assets/vnc/image /
 #### => Substep: Frontend builder
 ##
 ##  NOTE:   This substep always runs in an amd64 image regardless of the architecture of
-##          final image. As a result, this Dockerfile can be run only on amd64 machines
+##          the final image. As a result, this Dockerfile can be run only on amd64 machines
 ##          with QEMU enabled.
 ##
 ##
