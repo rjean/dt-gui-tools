@@ -16,7 +16,10 @@ from layers.layer_type import LayerType
 import logging
 import utils
 from classes.mapObjects import MapBaseObject as MapObject
+from classes.mapObjects import GroundAprilTagObject
 from layers.relations import get_layer_type_by_object_type
+from configloader import get_duckietown_types
+from forms.new_tag_object import NewTagForm
 from forms.default_forms import question_form_yes_no
 
 logger = logging.getLogger('root')
@@ -58,6 +61,10 @@ class duck_window(QtWidgets.QMainWindow):
 
         # Load element's info
         self.info_json = json.load(codecs.open(elem_info, "r", "utf-8"))
+
+        # Loads info about types from duckietown
+        self.duckietown_types_apriltags = get_duckietown_types()
+        self.new_tag_class = NewTagForm(self.duckietown_types_apriltags)
 
         self.map = map.DuckietownMap()
         self.ui = Ui_MainWindow()
@@ -116,6 +123,7 @@ class duck_window(QtWidgets.QMainWindow):
         #  Signal from viewer
         self.mapviewer.selectionChanged.connect(self.selectionUpdate)
         self.mapviewer.editObjectChanged.connect(self.create_form)
+        self.new_tag_class.apriltag_added.connect(self.add_apriltag)
 
         #  Assign actions to buttons
         create_map.triggered.connect(self.create_map_triggered)
@@ -575,6 +583,8 @@ class duck_window(QtWidgets.QMainWindow):
             # clear object buffer
             self.active_items = []
             self.mapviewer.raw_selection = [0]*4
+        elif key == QtCore.Qt.Key_R:
+            self.new_tag_class.create_form()
         if self.active_items:
             if key == QtCore.Qt.Key_Backspace:
                 # delete object
@@ -675,6 +685,12 @@ class duck_window(QtWidgets.QMainWindow):
                 for j in range(max(selection[0], 0), min(selection[2], len(tile_layer[0]))):
                     tile_layer[i][j].rotation = (tile_layer[i][j].rotation + 90) % 360
             self.mapviewer.scene().update()
+
+    def add_apriltag(self, apriltag: GroundAprilTagObject):
+        self.map.add_objects_to_map(apriltag, self.info_json['info'])
+        self.update_layer_tree()
+        self.mapviewer.scene().update()
+
 
     def trimClicked(self):
         self.editor.save(self.map)
