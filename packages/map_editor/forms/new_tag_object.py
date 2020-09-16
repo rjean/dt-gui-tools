@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget, QComboBox, QDialog, QGroupBox, QDialogButtonBox, QFormLayout,QVBoxLayout, QLineEdit, QCompleter, QMessageBox
+from PyQt5.QtWidgets import QWidget, QComboBox, QDialog, QGroupBox, QDialogButtonBox, QFormLayout,QVBoxLayout, QLineEdit, QCompleter, QMessageBox, QHBoxLayout
 from classes.mapObjects import GroundAprilTagObject
 
 class NewTagForm(QDialog):
@@ -18,7 +18,7 @@ class NewTagForm(QDialog):
             self.close()
         else:
             msgBox = QMessageBox()
-            msgBox.setText("No")
+            msgBox.setText("No such tag {} in {}".format(tag_id, self.combo_type.currentText()))
             msgBox.exec()
 
     def dialog_reject(self):
@@ -49,9 +49,12 @@ class NewTagForm(QDialog):
         self.combo_id.addItems([str(i) for i in self.tags['TrafficSign']])
         self.combo_id.currentTextChanged.connect(self.second_combo_box_changed)
         
-        layout.addRow(self.combo_id)
-        layout.addRow(self.lineEdit)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.lineEdit)
+        hbox.addWidget(self.combo_id)
+        layout.addRow(hbox)
         formGroupBox.setLayout(layout)
+
         # layout
         mainLayout = QVBoxLayout() 
         mainLayout.addWidget(formGroupBox)
