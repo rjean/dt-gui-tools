@@ -138,8 +138,7 @@
             },
             "id": "apriltag",
             "elements": [
-                "apriltag_300",
-                "apriltag_301"
+                "apriltag"
             ]
         }
     ],
@@ -670,33 +669,19 @@
             },
             "icon": "img/objects/watchtower.png"
         },
-        "apriltag_300": {
+        "apriltag": {
             "type": "apriltag",
             "lang": {
                 "ru": {
-                    "name": "Apriltag300",
-                    "info": "Apriltag300_ru"
+                    "name": "Apriltag",
+                    "info": "Apriltag_ru"
                 },
                 "en": {
-                    "name": "Apriltag300",
-                    "info": "Apriltag300_en"
+                    "name": "Apriltag",
+                    "info": "Apriltag_en"
                 }
             },
-            "icon": "img/apriltags/apriltag_300.png"
-        },
-        "apriltag_301": {
-            "type": "apriltag",
-            "lang": {
-                "ru": {
-                    "name": "Apriltag301",
-                    "info": "Apriltag301_ru"
-                },
-                "en": {
-                    "name": "Apriltag301",
-                    "info": "Apriltag301_en"
-                }
-            },
-            "icon": "img/apriltags/apriltag_301.png"
+            "icon": "img/apriltags/apriltag.png"
         },
         "empty": {
             "lang": {
