@@ -382,7 +382,7 @@ class duck_window(QtWidgets.QMainWindow):
             update visible state of layer.
             :return: -
             """
-            layer = self.map.get_layer_by_name(item.text())
+            layer = self.map.get_layer_by_type_name(item.text())
             if not layer:
                 logger.debug("Not found layer: {}".format(item.text()))
                 return
