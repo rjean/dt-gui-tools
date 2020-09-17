@@ -42,14 +42,14 @@ class DuckietownMap:
             self.add_layer_from_data(LayerType.ITEMS, layer)
         return layer
 
-    def get_layer_by_name(self, name):
+    def get_layer_by_type_name(self, name):
         """
         Get layer by name
         :param name: name of layer
         :return: list, if name doesn't exist, return None
         """
         for layer in self.layers:
-            if layer.name == name:
+            if str(layer.type) == name:
                 return layer
         return None
 
@@ -110,7 +110,7 @@ class DuckietownMap:
         :param layer_data: list
         :return: bool, return False if layer doesn't exist, else True
         """
-        layer = self.get_layer_by_name(layer_name)
+        layer = self.get_layer_by_type_name(layer_name)
         if layer:
             return self.set_layer_data_by_type(layer.type, layer_data)
         else:
@@ -190,7 +190,7 @@ class DuckietownMap:
         :param elem: MapObject. Note: after adding specific layers, it can change
         :return: bool, return False if layer doesn't exist, else True
         """
-        layer = self.get_layer_by_name(layer_name).type
+        layer = self.get_layer_by_type_name(layer_name).type
         if layer is not None:
             return self.add_elem_to_layer_by_type(layer.type, elem)
         else:
@@ -209,7 +209,7 @@ class DuckietownMap:
             logger.warning("Don't use this method for tile layer.")
             return False
         layer = self.get_layer_by_type(layer_type)
-        if layer is not None:  # layer can exist, but be empty. get_layer_by_name/get_layer_by_type return None, if layer doesn't exist
+        if layer is not None:  # layer can exist, but be empty. get_layer_by_type_name/get_layer_by_type return None, if layer doesn't exist
             layer.add_elem(elem)
             return True
         else:
