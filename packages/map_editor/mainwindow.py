@@ -687,7 +687,11 @@ class duck_window(QtWidgets.QMainWindow):
             self.mapviewer.scene().update()
 
     def add_apriltag(self, apriltag: GroundAprilTagObject):
-        self.map.add_objects_to_map(apriltag, self.info_json['info'])
+        layer = self.map.get_layer_by_type(LayerType.GROUND_APRILTAG)
+        if layer is None: 
+            self.map.add_layer_from_data(LayerType.GROUND_APRILTAG, [apriltag])
+        else:
+            self.map.add_elem_to_layer_by_type(LayerType.GROUND_APRILTAG, apriltag)
         self.update_layer_tree()
         self.mapviewer.scene().update()
 
