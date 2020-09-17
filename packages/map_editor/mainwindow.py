@@ -8,7 +8,7 @@ from classes.mapTile import MapTile
 from mapEditor import MapEditor
 from main_design import *
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QMessageBox, QDesktopWidget, QFormLayout, QVBoxLayout, QLineEdit, QCheckBox, QGroupBox, QLabel
+from PyQt5.QtWidgets import QMessageBox, QDesktopWidget, QFormLayout, QVBoxLayout, QLineEdit, QCheckBox, QGroupBox, QLabel, QComboBox
 from IOManager import *
 import functools, json , copy
 from infowindow import info_window
@@ -618,6 +618,15 @@ class duck_window(QtWidgets.QMainWindow):
  
     def create_form(self, active_object: MapObject):
         def accept():
+            # check tag_id and tag_type
+            tag_id = int(edit_obj['tag_id'].text())
+            tag_type = edit_obj['tag_type'].text()
+            
+            if tag_type not in self.duckietown_types_apriltags.keys() or tag_id not in self.duckietown_types_apriltags[tag_type]:
+                msgBox = QMessageBox()
+                msgBox.setText("tag id or tag type is uncorrect!")
+                msgBox.exec()
+                return
             for attr_name, attr in editable_attrs.items():
                 if attr_name == 'pos':
                     active_object.position[0] = float(edit_obj['x'].text())
@@ -648,6 +657,13 @@ class duck_window(QtWidgets.QMainWindow):
         layout = QFormLayout()
         editable_attrs = active_object.get_editable_attrs()
         edit_obj = {}
+        combo_id = QComboBox(self)
+        
+        def change_combo_id(value):
+            combo_id.clear()
+            combo_id.addItems([str(i) for i in self.duckietown_types_apriltags[value]])
+            combo_id.setEditText(str(self.duckietown_types_apriltags[value][0]))
+
         for attr_name in sorted(editable_attrs):
             attr = editable_attrs[attr_name]
             if attr_name == 'pos':
@@ -657,6 +673,30 @@ class duck_window(QtWidgets.QMainWindow):
                 edit_obj['y'] = y_edit
                 layout.addRow(QLabel("{}.X".format(attr_name)), x_edit)
                 layout.addRow(QLabel("{}.Y".format(attr_name)), y_edit)
+                continue
+            elif attr_name == 'tag_id':
+                edit = QLineEdit(str(attr))
+                edit_obj[attr_name] = edit
+                tag_id = int(attr)
+                for type_sign in self.duckietown_types_apriltags.keys():
+                    if tag_id in self.duckietown_types_apriltags[type_sign]:
+                        type_id = type_sign
+                        break
+                
+                combo_id.addItems([str(i) for i in self.duckietown_types_apriltags[type_id]])
+                combo_id.setLineEdit(edit)
+                combo_id.setEditText(str(attr))
+                layout.addRow(QLabel(attr_name), combo_id)
+                continue
+            elif attr_name == 'tag_type':
+                edit = QLineEdit(str(attr))
+                edit_obj[attr_name] = edit
+                combo_type = QComboBox(self)
+                combo_type.addItems([str(i) for i in self.duckietown_types_apriltags.keys()])
+                combo_type.activated[str].connect(change_combo_id)
+                combo_type.setLineEdit(edit)
+                combo_type.setEditText(attr)
+                layout.addRow(QLabel(attr_name), combo_type)
                 continue
             if type(attr) == bool:
                 check = QCheckBox()
