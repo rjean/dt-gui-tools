@@ -36,6 +36,25 @@ class SignObject(MapBaseObject):
         MapBaseObject.__init__(self, init_info)
         self.tag_id = init_info["tag_id"] if "tag_id" in init_info else 0
 
+    def get_editable_attrs(self):
+        return {
+            'pos': self.position,
+            'rotate': self.rotation,
+            "tag_id": self.tag_id,
+        }
+    
+    def __iter__(self):
+        yield from {
+            'kind': self.kind,
+            'height': self.height,
+            'pos': self.position,
+            'rotate': self.rotation,
+            'optional': self.optional,
+            'static': self.static,
+            "tag_id": self.tag_id,
+        }.items()
+    
+
 class CityObject(MapBaseObject):
 
     def __init__(self, init_info):

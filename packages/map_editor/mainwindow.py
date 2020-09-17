@@ -18,7 +18,7 @@ import utils
 from classes.mapObjects import MapBaseObject as MapObject
 from classes.mapObjects import GroundAprilTagObject
 from layers.relations import get_layer_type_by_object_type
-from configloader import get_duckietown_types
+from tag_config import get_duckietown_types
 from forms.new_tag_object import NewTagForm
 from forms.default_forms import question_form_yes_no
 
@@ -421,10 +421,12 @@ class duck_window(QtWidgets.QMainWindow):
                     for tile in row:
                         tile_elements.append(tile.kind)
                 layer_elements = utils.count_elements(tile_elements)
+            elif layer.type in (LayerType.TRAFFIC_SIGNS, LayerType.GROUND_APRILTAG):
+                layer_elements = utils.count_elements(['{}{}'.format(elem.kind, elem.tag_id) for elem in layer.data])
             else:
                 layer_elements = utils.count_elements([elem.kind for elem in layer.data])
             for kind, counter in layer_elements.most_common():
-                item = QtGui.QStandardItem("{} ({})".format(self.get_translation(self.info_json['info'][kind])['name'], counter))
+                item = QtGui.QStandardItem("{} ({})".format(kind, counter))
                 layer_item.appendRow(item)
             layer_item.sortChildren(0)
         layer_tree_view.expandAll()
@@ -628,10 +630,13 @@ class duck_window(QtWidgets.QMainWindow):
                     continue
                 if type(attr) == float:
                     active_object.__setattr__(attr_name, float(edit_obj[attr_name].text()))
+                if type(attr) == int:
+                    active_object.__setattr__(attr_name, int(edit_obj[attr_name].text()))
                 else:
                     active_object.__setattr__(attr_name, edit_obj[attr_name].text())
             dialog.close()
             self.mapviewer.scene().update()
+            self.update_layer_tree()
 
         def reject():
             dialog.close()
