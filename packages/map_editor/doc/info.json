@@ -47,11 +47,11 @@
             },
             "id": "ban",
             "elements": [
-                "sign_stop",
-                "sign_yield",
-                "sign_no_right_turn",
-                "sign_no_left_turn",
-                "sign_do_not_enter"
+                "stop",
+                "yield",
+                "no-right-turn",
+                "no-left-turn",
+                "do-not-enter"
             ]
         },
         {
@@ -65,12 +65,12 @@
             },
             "id": "info",
             "elements": [
-                "sign_oneway_right",
-                "sign_oneway_left",
-                "sign_4_way_intersect",
-                "sign_right_T_intersect",
-                "sign_left_T_intersect",
-                "sign_T_intersection"
+                "oneway-right",
+                "oneway-left",
+                "4-way-intersect",
+                "right-T-intersect",
+                "left-T-intersect",
+                "T-intersection"
             ]
         },
         {
@@ -84,10 +84,10 @@
             },
             "id": "spec",
             "elements": [
-                "sign_pedestrian",
-                "sign_t_light_ahead",
-                "sign_duck_crossing",
-                "sign_parking"
+                "pedestrian",
+                "t-light-ahead",
+                "duck-crossing",
+                "parking"
             ]
         },
         {
@@ -143,7 +143,7 @@
         }
     ],
     "info": {
-        "sign_duck_crossing": {
+        "duck-crossing": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -155,7 +155,7 @@
                     "info": "Special sign. Indicates the place where ducks cross the road."
                 }
             },
-            "icon": "img/signs/sign_duck_crossing.png"
+            "icon": "img/signs/duck-crossing.png"
         },
         "barrier": {
             "type": "object",
@@ -203,7 +203,7 @@
             },
             "icon": "img/objects/house.png"
         },
-        "sign_stop": {
+        "stop": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -215,7 +215,7 @@
                     "info": "Regulatory sign. It obliges to stop in front of it."
                 }
             },
-            "icon": "img/signs/sign_stop.png"
+            "icon": "img/signs/stop.png"
         },
         "curve_left": {
             "lang": {
@@ -299,7 +299,7 @@
             },
             "icon": "img/objects/tree.png"
         },
-        "sign_yield": {
+        "yield": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -311,7 +311,7 @@
                     "info": "Regulatory sign. Demands to give way at an intersection."
                 }
             },
-            "icon": "img/signs/sign_yield.png"
+            "icon": "img/signs/yield.png"
         },
         "grass": {
             "lang": {
@@ -349,7 +349,7 @@
             "icon": "img/tiles/3way_left.png",
             "white": 81
         },
-        "sign_right_T_intersect": {
+        "right-T-intersect": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -361,7 +361,7 @@
                     "info": "Information sign. Means there is a right T-junction ahead."
                 }
             },
-            "icon": "img/signs/sign_right_T_intersect.png"
+            "icon": "img/signs/right-T-intersect.png"
         },
         "duckie": {
             "type": "object",
@@ -395,7 +395,7 @@
             "icon": "img/tiles/3way_right.png",
             "white": 81
         },
-        "sign_T_intersection": {
+        "T-intersection": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -407,9 +407,9 @@
                     "info": "Information sign. Means there is a T-junction ahead."
                 }
             },
-            "icon": "img/signs/sign_T_intersection.png"
+            "icon": "img/signs/T-intersection.png"
         },
-        "sign_4_way_intersect": {
+        "4-way-intersect": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -421,7 +421,7 @@
                     "info": "Information sign. Means that there is a 4-way intersection ahead."
                 }
             },
-            "icon": "img/signs/sign_4_way_intersect.png"
+            "icon": "img/signs/4-way-intersect.png"
         },
         "cone": {
             "type": "object",
@@ -437,7 +437,7 @@
             },
             "icon": "img/objects/cone.png"
         },
-        "sign_left_T_intersect": {
+        "left-T-intersect": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -449,7 +449,7 @@
                     "info": "Information sign. Means there is a left T-intersection ahead."
                 }
             },
-            "icon": "img/signs/sign_left_T_intersect.png"
+            "icon": "img/signs/left-T-intersect.png"
         },
         "4way": {
             "lang": {
@@ -469,7 +469,7 @@
             "icon": "img/tiles/4way.png",
             "white": 40
         },
-        "sign_no_left_turn": {
+        "no-left-turn": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -481,9 +481,9 @@
                     "info": "Regulatory sign. Prohibits left turn and U-turn."
                 }
             },
-            "icon": "img/signs/sign_no_left_turn.png"
+            "icon": "img/signs/no-left-turn.png"
         },
-        "sign_do_not_enter": {
+        "do-not-enter": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -495,7 +495,7 @@
                     "info": "Regulatory sign. Prohibits passage under the sign."
                 }
             },
-            "icon": "img/signs/sign_do_not_enter.png"
+            "icon": "img/signs/do-not-enter.png"
         },
         "bus": {
             "type": "object",
@@ -511,7 +511,7 @@
             },
             "icon": "img/objects/bus.png"
         },
-        "sign_t_light_ahead": {
+        "t-light-ahead": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -523,7 +523,7 @@
                     "info": "Special sign. Indicates the presence of traffic light."
                 }
             },
-            "icon": "img/signs/sign_t_light_ahead.png"
+            "icon": "img/signs/t-light-ahead.png"
         },
         "building": {
             "type": "object",
@@ -539,7 +539,7 @@
             },
             "icon": "img/objects/building.png"
         },
-        "sign_no_right_turn": {
+        "no-right-turn": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -551,7 +551,7 @@
                     "info": "Regulatory sign. Prohibits right turn."
                 }
             },
-            "icon": "img/signs/sign_no_right_turn.png"
+            "icon": "img/signs/no-right-turn.png"
         },
         "trafficlight": {
             "type": "object",
@@ -585,7 +585,7 @@
             "icon": "img/tiles/asphalt.png",
             "white": 0
         },
-        "sign_parking": {
+        "parking": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -597,9 +597,9 @@
                     "info": "Special sign. Indicates a parking spot."
                 }
             },
-            "icon": "img/signs/sign_parking.png"
+            "icon": "img/signs/parking.png"
         },
-        "sign_oneway_right": {
+        "oneway-right": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -611,9 +611,9 @@
                     "info": "Information sign. Means that one-way traffic starts from left to right."
                 }
             },
-            "icon": "img/signs/sign_oneway_right.png"
+            "icon": "img/signs/oneway-right.png"
         },
-        "sign_pedestrian": {
+        "pedestrian": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -625,7 +625,7 @@
                     "info": "Special sign. Indicates a pedestrian crossing."
                 }
             },
-            "icon": "img/signs/sign_pedestrian.png"
+            "icon": "img/signs/pedestrian.png"
         },
         "truck": {
             "type": "object",
@@ -641,7 +641,7 @@
             },
             "icon": "img/objects/truck.png"
         },
-        "sign_oneway_left": {
+        "oneway-left": {
             "type": "sign",
             "lang": {
                 "ru": {
@@ -653,7 +653,7 @@
                     "info": "Information sign. Says that one-way traffic starts from right to left."
                 }
             },
-            "icon": "img/signs/sign_oneway_left.png"
+            "icon": "img/signs/oneway-left.png"
         },
         "watchtower": {
             "type": "watchtower",
