@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget, QComboBox, QDialog, QGroupBox, QDialogButtonBox, QFormLayout,QVBoxLayout, QLineEdit, QCompleter, QMessageBox, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QComboBox, QDialog, QGroupBox, QDialogButtonBox, QFormLayout,QVBoxLayout, QLineEdit, QMessageBox
 from classes.mapObjects import GroundAprilTagObject
 
 class NewTagForm(QDialog):
@@ -11,7 +11,14 @@ class NewTagForm(QDialog):
 
     def dialog_accept(self):
         tag_type = self.combo_type.currentText()
-        tag_id = int(self.lineEdit.text())
+        try:
+            tag_id = int(self.lineEdit.text())
+        except Exception:
+            msgBox = QMessageBox()
+            msgBox.setText("ID - {} should be only int".format(tag_id))
+            msgBox.exec()
+            return
+
         if tag_id in self.tags[self.combo_type.currentText()]:
             self.apriltag_added.emit([dict(kind="apriltag_300",pos=(1.0, 1.0), rotate=0, height=1,
                                                   optional=False, static=True, tag_type=tag_type, tag_id=tag_id)])
@@ -48,11 +55,9 @@ class NewTagForm(QDialog):
         self.combo_id = QComboBox(self)
         self.combo_id.addItems([str(i) for i in self.tags['TrafficSign']])
         self.combo_id.currentTextChanged.connect(self.second_combo_box_changed)
-        
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.lineEdit)
-        hbox.addWidget(self.combo_id)
-        layout.addRow(hbox)
+        self.combo_id.setLineEdit(self.lineEdit)
+
+        layout.addRow(self.combo_id)
         formGroupBox.setLayout(layout)
 
         # layout
