@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QComboBox, QDialog, QGroupBox, QDialogButto
 from classes.mapObjects import GroundAprilTagObject
 
 class NewTagForm(QDialog):
-    apriltag_added = QtCore.pyqtSignal(list)
+    apriltag_added = QtCore.pyqtSignal(GroundAprilTagObject)
     def __init__(self, tags):
         self.tags = tags
         super().__init__()
@@ -12,8 +12,8 @@ class NewTagForm(QDialog):
     def dialog_accept(self):
         tag_type = self.combo_type.currentText()
         tag_id =  int(self.combo_id.currentText())
-        self.apriltag_added.emit([dict(kind="apriltag_300",pos=(1.0, 1.0), rotate=0, height=1,
-                                                  optional=False, static=True, tag_type=tag_type, tag_id=tag_id)])
+        self.apriltag_added.emit(GroundAprilTagObject(dict(kind="apriltag_300",pos=(1.0, 1.0), rotate=0, height=1,
+                                                  optional=False, static=True, tag_type=tag_type, tag_id=tag_id)))
         self.close()
 
     def dialog_reject(self):
