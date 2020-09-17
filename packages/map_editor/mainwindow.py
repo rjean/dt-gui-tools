@@ -18,7 +18,7 @@ import utils
 from classes.mapObjects import MapBaseObject as MapObject
 from classes.mapObjects import GroundAprilTagObject
 from layers.relations import get_layer_type_by_object_type
-from configloader import get_duckietown_types
+from tag_config import get_duckietown_types
 from forms.new_tag_object import NewTagForm
 from forms.default_forms import question_form_yes_no
 
