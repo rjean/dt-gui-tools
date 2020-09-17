@@ -34,7 +34,7 @@ class SignObject(MapBaseObject):
 
     def __init__(self, init_info):
         MapBaseObject.__init__(self, init_info)
-
+        self.tag_id = init_info["tag_id"] if "tag_id" in init_info else 0
 
 class CityObject(MapBaseObject):
 
