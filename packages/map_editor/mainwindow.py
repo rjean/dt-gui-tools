@@ -630,6 +630,8 @@ class duck_window(QtWidgets.QMainWindow):
                     continue
                 if type(attr) == float:
                     active_object.__setattr__(attr_name, float(edit_obj[attr_name].text()))
+                if type(attr) == int:
+                    active_object.__setattr__(attr_name, int(edit_obj[attr_name].text()))
                 else:
                     active_object.__setattr__(attr_name, edit_obj[attr_name].text())
             dialog.close()
