@@ -421,10 +421,12 @@ class duck_window(QtWidgets.QMainWindow):
                     for tile in row:
                         tile_elements.append(tile.kind)
                 layer_elements = utils.count_elements(tile_elements)
+            elif layer.type in (LayerType.TRAFFIC_SIGNS, LayerType.GROUND_APRILTAG):
+                layer_elements = utils.count_elements(['{}{}'.format(elem.kind, elem.tag_id) for elem in layer.data])
             else:
                 layer_elements = utils.count_elements([elem.kind for elem in layer.data])
             for kind, counter in layer_elements.most_common():
-                item = QtGui.QStandardItem("{} ({})".format(self.get_translation(self.info_json['info'][kind])['name'], counter))
+                item = QtGui.QStandardItem("{} ({})".format(kind, counter))
                 layer_item.appendRow(item)
             layer_item.sortChildren(0)
         layer_tree_view.expandAll()
@@ -632,6 +634,7 @@ class duck_window(QtWidgets.QMainWindow):
                     active_object.__setattr__(attr_name, edit_obj[attr_name].text())
             dialog.close()
             self.mapviewer.scene().update()
+            self.update_layer_tree()
 
         def reject():
             dialog.close()
