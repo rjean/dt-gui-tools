@@ -1,6 +1,7 @@
 data:
 - height: 1
   kind: watchtower
+  hostname: watchtower00
   optional: false
   pos: [6.0, 0.0]
   rotate: 0
