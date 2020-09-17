@@ -2,6 +2,7 @@
 from layers.map_layer import MapLayer
 from layers.layer_type import LayerType
 import layers.relations as layer_relations
+from tag_config import TRAFFIC_SIGN_TYPES
 import logging
 
 logger = logging.getLogger('root')
@@ -220,6 +221,9 @@ class DuckietownMap:
         for map_object in objects:
             object_type = info_about_objects[map_object['kind']]['type']
             layer_type = layer_relations.get_layer_type_by_object_type(object_type)
+            if layer_type == LayerType.TRAFFIC_SIGNS:
+                tag_ids = TRAFFIC_SIGN_TYPES[map_object['kind']]
+                map_object['tag_id'] = tag_ids[0] if 'tag_id' not in map_object and tag_ids else 0
             map_object = MapLayer.create_layer_object(object_type, map_object)
             if not self.get_layer_by_type(layer_type):
                 self.add_layer_from_data(layer_type, [map_object])
