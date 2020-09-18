@@ -632,8 +632,8 @@ class duck_window(QtWidgets.QMainWindow):
                     msgBox.setText("tag id or tag type is uncorrect!")
                     msgBox.exec()
                     return
-            else:
-                if 'tag_id' in edit_obj and not edit_obj['tag_id'].text().isdigit():
+            elif 'tag_id' in edit_obj:
+                if not edit_obj['tag_id'].text().isdigit() or not int(edit_obj['tag_id'].text()) in self.duckietown_types_apriltags['TrafficSign']:
                     msgBox = QMessageBox()
                     msgBox.setText("tag id is uncorrect!")
                     msgBox.exec()
