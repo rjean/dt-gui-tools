@@ -6,7 +6,6 @@ set -e
 # do stuff
 apt-get update
 dpkg-query -W -f='${Package}\n' > /tmp/a.txt
-apt-get install -y python-pip python-dev build-essential
 pip install setuptools wheel
 pip install -r /tmp/requirements.txt
 dpkg-query -W -f='${Package}\n' > /tmp/b.txt
