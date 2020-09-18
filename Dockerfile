@@ -56,10 +56,13 @@ RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
 
 # install python3 dependencies
 COPY ./dependencies-py3.txt "${REPO_PATH}/"
-RUN pip3 install -r ${REPO_PATH}/dependencies-py3.txt
+RUN pip3 install --use-feature=2020-resolver -r ${REPO_PATH}/dependencies-py3.txt
 
 # copy the source code
 COPY ./packages "${REPO_PATH}/packages"
+
+# get the image_pipeline
+RUN git clone https://github.com/ros-perception/image_pipeline.git
 
 # build packages
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
@@ -87,6 +90,11 @@ LABEL org.duckietown.label.module.type="${REPO_NAME}" \
 # <== Do not change the code above this line
 # <==================================================
 
+## Python2 pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&\
+  python get-pip.py &&\
+  rm get-pip.py
+
 ## nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
@@ -107,7 +115,7 @@ COPY assets/vnc/image /
 #### => Substep: Frontend builder
 ##
 ##  NOTE:   This substep always runs in an amd64 image regardless of the architecture of
-##          final image. As a result, this Dockerfile can be run only on amd64 machines
+##          the final image. As a result, this Dockerfile can be run only on amd64 machines
 ##          with QEMU enabled.
 ##
 ##
