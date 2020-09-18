@@ -3,4 +3,4 @@ numpy
 
 # Map editor
 PyQt5
-yaml
+PyYAML
