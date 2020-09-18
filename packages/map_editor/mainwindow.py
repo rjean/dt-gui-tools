@@ -290,14 +290,12 @@ class duck_window(QtWidgets.QMainWindow):
 
     #  Help: About
     def about_author_triggered(self):
-        #text = "Authors:\n alskaa;\n dihindee;\n ovc-serega;\n HadronCollider;\n light5551;\n snush.\n\n Contact us " \
-        #       "on github! "
         text = '''
-        - Select an object using the left mouse button
-        - when object is selected you can change pos, using WASD: W(UP), A(LEFT), D(RIGHT), S(DOWN)
-        - reset object tracking using `Q`
-        - add apriltag using key `R`
-        - Edit an object, click on it using the right mouse button
+        - Select an object using the left mouse button\n
+        - when object is selected you can change pos, using WASD: W(UP), A(LEFT), D(RIGHT), S(DOWN)\n
+        - reset object tracking using `Q`\n
+        - add apriltag using key `R`\n
+        - Edit an object, click on it using the right mouse button\n
         - Authors:\n alskaa;\n dihindee;\n ovc-serega;\n HadronCollider;\n light5551;\n snush.\n\n Contact uso n github!
         '''
         self.show_info(self.author_window, "About", text)
