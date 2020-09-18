@@ -620,18 +620,24 @@ class duck_window(QtWidgets.QMainWindow):
  
     def create_form(self, active_object: MapObject):
         def accept():
-            # check tag_id and tag_type
-            try:
-                tag_id = int(edit_obj['tag_id'].text())
+            if 'tag_type' in edit_obj:
                 tag_type = edit_obj['tag_type'].text()
-                
-                if tag_type not in self.duckietown_types_apriltags.keys() or tag_id not in self.duckietown_types_apriltags[tag_type]:
+                if 'tag_id' in edit_obj and (not edit_obj['tag_id'].text().isdigit() or int(edit_obj['tag_id'].text()) not in self.duckietown_types_apriltags[tag_type]):
                     msgBox = QMessageBox()
                     msgBox.setText("tag id or tag type is uncorrect!")
                     msgBox.exec()
                     return
-            except KeyError:
-                pass
+                if tag_type not in self.duckietown_types_apriltags.keys() or int(edit_obj['tag_id'].text()) not in self.duckietown_types_apriltags[tag_type]:
+                    msgBox = QMessageBox()
+                    msgBox.setText("tag id or tag type is uncorrect!")
+                    msgBox.exec()
+                    return
+            else:
+                if 'tag_id' in edit_obj and not edit_obj['tag_id'].text().isdigit():
+                    msgBox = QMessageBox()
+                    msgBox.setText("tag id is uncorrect!")
+                    msgBox.exec()
+                    return  
             for attr_name, attr in editable_attrs.items():
                 if attr_name == 'pos':
                     active_object.position[0] = float(edit_obj['x'].text())

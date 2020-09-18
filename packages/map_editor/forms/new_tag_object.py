@@ -15,7 +15,7 @@ class NewTagForm(QDialog):
             tag_id = int(self.combo_id.currentText())
         except Exception:
             msgBox = QMessageBox()
-            msgBox.setText("ID - {} should be only int".format(tag_id))
+            msgBox.setText("ID - {} should be only int".format(self.combo_id.currentText()))
             msgBox.exec()
             return
 
