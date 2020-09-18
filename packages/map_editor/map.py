@@ -2,6 +2,7 @@
 from layers.map_layer import MapLayer
 from layers.layer_type import LayerType
 import layers.relations as layer_relations
+from tag_config import TRAFFIC_SIGN_TYPES
 import logging
 
 logger = logging.getLogger('root')
@@ -13,6 +14,13 @@ class DuckietownMap:
 
     def __init__(self, empty=False):
         self.layers = [MapLayer(LayerType.TILES, [[]]), MapLayer(LayerType.ITEMS, [])] if not empty else []
+
+    def __iter__(self):
+        yield from {
+            'name': self.name,
+            'tile_size': self.gridSize,
+            'layers': [dict(layer) for layer in self.layers]
+        }.items()
 
     # Getters
 
@@ -35,14 +43,14 @@ class DuckietownMap:
             self.add_layer_from_data(LayerType.ITEMS, layer)
         return layer
 
-    def get_layer_by_name(self, name):
+    def get_layer_by_type_name(self, name):
         """
         Get layer by name
         :param name: name of layer
         :return: list, if name doesn't exist, return None
         """
         for layer in self.layers:
-            if layer.name == name:
+            if str(layer.type) == name:
                 return layer
         return None
 
@@ -103,7 +111,7 @@ class DuckietownMap:
         :param layer_data: list
         :return: bool, return False if layer doesn't exist, else True
         """
-        layer = self.get_layer_by_name(layer_name)
+        layer = self.get_layer_by_type_name(layer_name)
         if layer:
             return self.set_layer_data_by_type(layer.type, layer_data)
         else:
@@ -183,7 +191,7 @@ class DuckietownMap:
         :param elem: MapObject. Note: after adding specific layers, it can change
         :return: bool, return False if layer doesn't exist, else True
         """
-        layer = self.get_layer_by_name(layer_name).type
+        layer = self.get_layer_by_type_name(layer_name).type
         if layer is not None:
             return self.add_elem_to_layer_by_type(layer.type, elem)
         else:
@@ -202,7 +210,7 @@ class DuckietownMap:
             logger.warning("Don't use this method for tile layer.")
             return False
         layer = self.get_layer_by_type(layer_type)
-        if layer is not None:  # layer can exist, but be empty. get_layer_by_name/get_layer_by_type return None, if layer doesn't exist
+        if layer is not None:  # layer can exist, but be empty. get_layer_by_type_name/get_layer_by_type return None, if layer doesn't exist
             layer.add_elem(elem)
             return True
         else:
@@ -213,12 +221,37 @@ class DuckietownMap:
         for map_object in objects:
             object_type = info_about_objects[map_object['kind']]['type']
             layer_type = layer_relations.get_layer_type_by_object_type(object_type)
+            if layer_type == LayerType.TRAFFIC_SIGNS:
+                tag_ids = TRAFFIC_SIGN_TYPES[map_object['kind']]
+                map_object['tag_id'] = tag_ids[0] if 'tag_id' not in map_object and tag_ids else 0
             map_object = MapLayer.create_layer_object(object_type, map_object)
             if not self.get_layer_by_type(layer_type):
                 self.add_layer_from_data(layer_type, [map_object])
             else:
                 self.add_elem_to_layer_by_type(layer_type, map_object)
     
+    def add_objects_to_layer(self, objects, layer_type, layer_name=''):
+        objects_to_layer = []
+        obj_class = layer_relations.get_class_by_layer_type(layer_type)
+        # adding tile layer
+        if layer_type == LayerType.TILES:
+            for layer_object in objects:
+                new_obj = []
+                for tile in layer_object:
+                    new_obj.append(obj_class(tile))
+                objects_to_layer.append(new_obj)
+            self.add_layer_from_data(layer_type, objects_to_layer, layer_name)
+        else:
+            layer = self.get_layer_by_type(layer_type)
+            for layer_object in objects:
+
+                objects_to_layer.append(obj_class(layer_object))
+            layer = self.get_layer_by_type(layer_type)
+            if layer:
+                layer.add_elem(objects_to_layer)
+            else:
+                self.add_layer_from_data(layer_type, objects_to_layer, layer_name)
+
     def clear_objects_layers(self):
         self.layers = [self.get_layer_by_type(LayerType.TILES)]
    
