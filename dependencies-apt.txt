@@ -12,13 +12,15 @@ ros-noetic-camera-calibration-parsers
 ros-noetic-camera-info-manager
 libgtk-3-dev
 ros-noetic-tf2-geometry-msgs
-python-dev
 
-# these are for VNC
+# NOTE: these are from focal vnc
+software-properties-common
+curl
+apache2-utils
+
 supervisor
 nginx
 sudo
-vim-tiny
 net-tools
 zenity
 xz-utils
@@ -27,12 +29,18 @@ x11-utils
 alsa-utils
 mesa-utils
 libgl1-mesa-dri
-lxde
-x11vnc
+
 xvfb
+x11vnc
+vim-tiny
+ttf-ubuntu-font-family
+ttf-wqy-zenhei
+
+lxde
 gtk2-engines-murrine
 gnome-themes-standard
 gtk2-engines-pixbuf
 gtk2-engines-murrine
-ttf-ubuntu-font-family
-ttf-wqy-zenhei
+arc-theme
+
+ffmpeg
