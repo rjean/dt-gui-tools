@@ -80,7 +80,7 @@ def apiresize():
 def liveflv():
     def generate():
         xenvs = {
-            'DISPLAY': ':1',
+            'DISPLAY': ':99',
         }
         bufsize = 1024 * 1
         framerate = 20

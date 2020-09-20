@@ -65,7 +65,7 @@ class State(object):
             'sed -i \'s#'
             '^exec /usr/bin/Xvfb.*$'
             '#'
-            'exec /usr/bin/Xvfb :1 -screen 0 {}x{}x24'
+            'exec /usr/bin/Xvfb :99 -screen 0 {}x{}x24'
             '#\' /usr/local/bin/xvfb.sh'
         ).format(w, h), shell=True)
         self.size_changed_count += 1
@@ -80,7 +80,7 @@ class State(object):
 
     def switch_video(self, onoff):
         xenvs = {
-            'DISPLAY': ':1',
+            'DISPLAY': ':99',
         }
         try:
             cmd = 'nofb' if onoff else 'fb'
@@ -92,7 +92,7 @@ class State(object):
         if self._w is not None and self._h is not None:
             return
         xenvs = {
-            'DISPLAY': ':1',
+            'DISPLAY': ':99',
         }
         try:
             output = gsp.check_output([
