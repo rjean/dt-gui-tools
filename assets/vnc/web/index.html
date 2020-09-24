@@ -8,5 +8,16 @@
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+
+    <!-- message forwarding to parent -->
+    <script type="application/javascript">
+      window.parent.postMessage(JSON.stringify({from: 'novnc', state: 'connecting'}), '*');
+
+      window.addEventListener("message", (event) => {
+        if (window !== window.parent){
+          window.parent.postMessage(event.data, '*');
+        }
+      }, false);
+    </script>
   </body>
 </html>
