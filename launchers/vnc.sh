@@ -105,7 +105,7 @@ sleep 2
 HOSTNAME=$(hostname)
 echo -e "\n
 NoVNC is running.\n
-\tOpen the URL http://${HOSTNAME}.local:${HTTP_PORT} in your browser.\n"
+\tOpen the URL http://${HOSTNAME}.local:${HTTP_PORT} or http://localhost:${HTTP_PORT} in your browser.\n"
 
 
 # ----------------------------------------------------------------------------
