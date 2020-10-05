@@ -41,3 +41,17 @@ a different location later.
 
 Change the file `launch.sh` in your repository to
 launch your code.
+
+# How to rebuild the dt-gui-tools docker.
+For latest amd64, update the Dockerfile to have the right architecture.
+```
+ARG ARCH=amd64
+```
+Then, the following command will built for amd64:
+```
+docker build -t duckietown/dt-gui-tools:daffy-amd64 .
+```
+
+
+
+
